@@ -1,0 +1,16 @@
+:host {
+  display: flex;
+  flex: 1;
+}
+
+.auth-zone-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  background-color: black;
+
+  .auth-zone-wrapper {
+    width: 400px;
+  }
+}

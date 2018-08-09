@@ -1,0 +1,6 @@
+<ng-container *ngIf="user$ | async as user">
+  <span class="user-title" [matMenuTriggerFor]="menu">{{user}}</span>
+  <mat-menu #menu="matMenu" yPosition="below" [overlapTrigger]="false">
+    <button mat-menu-item (click)="signOut()">Sign Out</button>
+  </mat-menu>
+</ng-container>

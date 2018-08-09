@@ -1,11 +1,9 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.html',
-  styleUrls: ['./app.scss'],
+  selector: 'auth-zone',
+  templateUrl: 'auth-zone.html',
+  styleUrls: ['./auth-zone.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AppComponent {
-  title = 'drwn';
-}
+export class AuthZoneComponent {}

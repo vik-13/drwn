@@ -1,0 +1,18 @@
+<form #form="ngForm" autocomplete="off" novalidate (submit)="signIn(form)">
+  <mat-card>
+    <mat-card-title>Welcome to the <strong>DRaWiNg</strong> App</mat-card-title>
+    <mat-card-content>
+      <div class="form-container">
+        <mat-form-field>
+          <input matInput name="email" required [ngModel] placeholder="Email"/>
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput name="password" type="password" required [ngModel] placeholder="Password"/>
+        </mat-form-field>
+      </div>
+    </mat-card-content>
+    <mat-card-actions align="right">
+      <button mat-button color="primary">Sign-in</button>
+    </mat-card-actions>
+  </mat-card>
+</form>

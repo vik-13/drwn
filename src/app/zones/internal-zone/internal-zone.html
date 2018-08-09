@@ -1,0 +1,13 @@
+<div class="internal-zone-container">
+  <mat-toolbar color="primary">
+    <span>DRaWiNg App</span>
+    <span class="flex">
+      <ng-container *ngIf="offline$ | async">OFFLINE</ng-container>
+    </span>
+    <drwn-user></drwn-user>
+  </mat-toolbar>
+  <div class="internal-zone-wrapper">
+    <router-outlet></router-outlet>
+  </div>
+</div>
+

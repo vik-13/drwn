@@ -6,6 +6,12 @@ import { AngularFireModule } from 'angularfire2';
 import { environment } from '../environments/environment';
 import { AngularFirestoreModule } from 'angularfire2/firestore';
 import { AngularFireAuthModule } from 'angularfire2/auth';
+import { AuthZoneModule } from './zones/auth-zone/auth-zone.module';
+import { InternalZoneModule } from './zones/internal-zone/internal-zone.module';
+import { routing } from './app.routes';
+import { DashboardModule } from './pages/dashboard/dashboard.module';
+import { SignInModule } from './pages/sign-in/sign-in.module';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
@@ -13,9 +19,18 @@ import { AngularFireAuthModule } from 'angularfire2/auth';
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFirestoreModule,
-    AngularFireAuthModule
+    AngularFireAuthModule,
+
+    routing,
+
+    AuthZoneModule,
+    SignInModule,
+
+    InternalZoneModule,
+    DashboardModule
   ],
   providers: [],
   bootstrap: [AppComponent]
