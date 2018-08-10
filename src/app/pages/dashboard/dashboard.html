@@ -1,1 +1,5 @@
-Dashboard
+<ng-container *ngIf="collection$ | async as collection">
+  <a href=""
+     *ngFor="let item of collection"
+     [routerLink]="['/draw', item.id]">{{item.name}} ({{item.width}}x{{item.height}})</a>
+</ng-container>

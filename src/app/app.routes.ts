@@ -6,6 +6,7 @@ import { InternalZoneComponent } from './zones/internal-zone/internal-zone';
 import { SignInComponent } from './pages/sign-in/sign-in';
 import { AuthZoneActivation } from './zones/auth-zone/auth-zone.activation';
 import { InternalZoneActivation } from './zones/internal-zone/internal-zone.activation';
+import { DrawComponent } from './pages/draw/draw';
 
 const appRoutes: Routes = [
   {path: '', redirectTo: 'dashboard', pathMatch: 'full'},
@@ -28,6 +29,10 @@ const appRoutes: Routes = [
       {
         path: 'dashboard',
         component: DashboardComponent
+      },
+      {
+        path: 'draw/:id',
+        component: DrawComponent
       }
     ]
   },

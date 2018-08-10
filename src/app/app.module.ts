@@ -12,6 +12,7 @@ import { routing } from './app.routes';
 import { DashboardModule } from './pages/dashboard/dashboard.module';
 import { SignInModule } from './pages/sign-in/sign-in.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { DrawModule } from './pages/draw/draw.module';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     SignInModule,
 
     InternalZoneModule,
-    DashboardModule
+    DashboardModule,
+    DrawModule
   ],
   providers: [],
   bootstrap: [AppComponent]

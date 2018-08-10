@@ -8,9 +8,11 @@
   flex-direction: column;
   height: 100vh;
   width: 100%;
+  background-color: #fafafa;
 
   .mat-toolbar {
     width: 100%;
+    flex: 0 0 64px;
 
     .flex {
       flex: 1;

@@ -3,8 +3,9 @@ import { InternalZoneComponent } from './internal-zone';
 import { RouterModule } from '@angular/router';
 import { InternalZoneActivation } from './internal-zone.activation';
 import { CommonModule } from '@angular/common';
-import { MatToolbarModule } from '@angular/material';
+import { MatButtonModule, MatIconModule, MatToolbarModule } from '@angular/material';
 import { UserModule } from '../../components/user/user.module';
+import { CreateModule } from '../../components/create/create.module';
 
 @NgModule({
   declarations: [
@@ -15,6 +16,10 @@ import { UserModule } from '../../components/user/user.module';
     RouterModule,
 
     MatToolbarModule,
+    MatIconModule,
+    MatButtonModule,
+
+    CreateModule,
 
     UserModule
   ],

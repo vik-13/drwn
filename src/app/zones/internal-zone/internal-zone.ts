@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { fromEvent, merge, of } from 'rxjs';
-import { map, mapTo } from 'rxjs/operators';
+import { mapTo } from 'rxjs/operators';
 
 @Component({
   selector: 'internal-zone',

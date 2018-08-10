@@ -1,0 +1,19 @@
+<div class="draw-area" *ngIf="layouts$ | async as layouts">
+  <svg [attr.width]="width"
+       [attr.height]="height"
+       oncontextmenu="return false;"
+       (mousedown)="mouseDown($event)"
+       (mousemove)="mouseMove($event)"
+       (mouseup)="mouseUp($event)">
+    <g *ngFor="let layout$ of layouts">
+      <ng-container *ngIf="layout$ | async as layout">
+        <ng-container *ngFor="let point of layout">
+          <line [attr.x1]="point.x1" [attr.y1]="point.y1" [attr.x2]="point.x2" [attr.y2]="point.y2" stroke="#34495e" stroke-width="1"></line>
+        </ng-container>
+        <ng-container *ngFor="let point of layout">
+          <circle [attr.cx]="point.x1" [attr.cy]="point.y1" r="5" [attr.fill]="'#353535'"></circle>
+        </ng-container>
+      </ng-container>
+    </g>
+  </svg>
+</div>
