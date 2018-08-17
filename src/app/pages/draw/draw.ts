@@ -1,8 +1,22 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { AngularFireAuth } from 'angularfire2/auth';
-import { map, switchMap, tap } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { ActivatedRoute } from '@angular/router';
+import { ControlType } from '../../components/controls/control.type';
+
+enum ActionType {
+  MOVE_POINT,
+  MOVE_LINE,
+  MOVE_ALL
+}
+
+interface Action {
+  type: ActionType;
+  start: {x: number, y: number};
+  last: {x: number, y: number};
+  data?: any;
+}
 
 @Component({
   selector: 'drwn-draw',
@@ -14,11 +28,27 @@ export class DrawComponent {
   width = 500;
   height = 380;
 
-  layoutsPath: string;
-  layouts$;
+  mouse: {x: number, y: number} = {
+    x: 0,
+    y: 0
+  };
 
-  constructor(private store: AngularFirestore,
-              private auth: AngularFireAuth, private route: ActivatedRoute) {
+  layouts$;
+  action: Action = {
+    type: null,
+    start: {x: 0, y: 0},
+    last: {x: 0, y: 0},
+    data: null
+  };
+  currentActive: string = null;
+  control: ControlType;
+
+  layoutsPath;
+
+  constructor(private changeDetection: ChangeDetectorRef,
+              private store: AngularFirestore,
+              private auth: AngularFireAuth,
+              route: ActivatedRoute) {
     this.layouts$ = auth.user
       .pipe(switchMap((user) => {
         return route.params
@@ -36,33 +66,119 @@ export class DrawComponent {
             });
           }));
       }))
-      .pipe(map((layouts) => {
-        return layouts.map((layout) => {
-          return store.collection(`${this.layoutsPath}/${layout.id}/path`).valueChanges()
-            .pipe(map((paths: any[]) => {
-              return paths.map((item: any, index) => {
-                return {
-                  x1: item.x,
-                  y1: item.y,
-                  x2: paths[index + 1] ? paths[index + 1].x : paths[0].x,
-                  y2: paths[index + 1] ? paths[index + 1].y : paths[0].y,
-                  index: item.index
-                };
-              });
-            }));
+      .pipe(map((layouts: any[]) => {
+        return layouts.filter((layout) => layout.visible).map((layout) => {
+          return {
+            ...layout,
+            path$: this.store.collection(`${this.layoutsPath}/${layout.id}/path`, ref => ref.orderBy('index')).snapshotChanges()
+              .pipe(map((paths) => {
+                return paths.map((item) => {
+                  return {id: item.payload.doc.id, ...item.payload.doc.data()};
+                });
+              }))
+              .pipe(map((paths: any[]) => {
+                return paths.map((item: any, index) => {
+                  const last = !paths[index + 1];
+                  const next = !last ? paths[index + 1] : paths[0];
+                  return {
+                    last,
+                    id1: item.id,
+                    x1: item.x,
+                    y1: item.y,
+                    id2: next.id,
+                    x2: next.x,
+                    y2: next.y,
+                    index1: item.index,
+                    index2: next.index
+                  };
+                });
+              }))
+          };
         });
       }));
   }
 
-  mouseDown(event) {
+  changeLayout(layoutId) {
+    this.currentActive = layoutId;
+    this.changeDetection.markForCheck();
+  }
 
+  mouseDown(event) {
+    this.mouse.x = event.offsetX;
+    this.mouse.y = event.offsetY;
+    if (!event.button) {
+      this.store.collection(`${this.layoutsPath}/${this.currentActive}/path`).add({
+        index: +new Date(),
+        x: this.mouse.x,
+        y: this.mouse.y
+      }).then();
+    } else if (this.control === ControlType.MOVE) {
+      // MOVE ALL;
+    }
+    this.action.last = {x: this.mouse.x, y: this.mouse.y};
   }
 
   mouseMove(event) {
+    this.mouse.x = event.offsetX;
+    this.mouse.y = event.offsetY;
 
+    if (this.action.type === ActionType.MOVE_POINT) {
+      this.store.doc(`${this.layoutsPath}/${this.currentActive}/path/${this.action.data.id1}`).update({
+        x: this.mouse.x,
+        y: this.mouse.y
+      }).then();
+    } else if (this.action.type === ActionType.MOVE_LINE) {
+      this.action.data.x1 += (this.mouse.x - this.action.last.x);
+      this.action.data.y1 += (this.mouse.y - this.action.last.y);
+      this.store.doc(`${this.layoutsPath}/${this.currentActive}/path/${this.action.data.id1}`).update({
+        x: this.action.data.x1,
+        y: this.action.data.y1
+      }).then();
+
+      this.action.data.x2 += (this.mouse.x - this.action.last.x);
+      this.action.data.y2 += (this.mouse.y - this.action.last.y);
+      this.store.doc(`${this.layoutsPath}/${this.currentActive}/path/${this.action.data.id2}`).update({
+        x: this.action.data.x2,
+        y: this.action.data.y2
+      }).then();
+    }
+    this.action.last = {x: this.mouse.x, y: this.mouse.y};
   }
 
   mouseUp(event) {
+    this.mouse.x = event.offsetX;
+    this.mouse.y = event.offsetY;
 
+    this.action.type = null;
+  }
+
+  clickOnLine(event, line) {
+    if (!event.button) {
+      this.action.type = ActionType.MOVE_LINE;
+      this.action.last = {x: this.mouse.x, y: this.mouse.y};
+      this.action.data = line;
+    } else {
+      this.store.collection(`${this.layoutsPath}/${this.currentActive}/path`).add({
+        index: line.last ? +new Date() : (line.index1 + line.index2) / 2,
+        x: (line.x1 + line.x2) / 2,
+        y: (line.y1 + line.y2) / 2
+      }).then();
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  clickOnDot(event, point) {
+    if (!event.button) {
+      this.action.type = ActionType.MOVE_POINT;
+      this.action.last = {x: this.mouse.x, y: this.mouse.y};
+      this.action.data = point;
+    } else {
+      this.store.doc(`${this.layoutsPath}/${this.currentActive}/path/${point.id1}`).delete().then();
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
   }
 }

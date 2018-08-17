@@ -1,0 +1,12 @@
+<div class="controls-container">
+  <div class="controls-header" (dblclick)="toggleView($event)">
+    <span class="flex">Ctrl</span><span class="pin" (click)="toggleView($event); false">_</span>
+  </div>
+  <ng-container *ngIf="expanded">
+    <div class="controls-list">
+      <mat-button-toggle-group [vertical]="true" [value]="selected" (change)="change($event)">
+        <mat-button-toggle *ngFor="let type of types" [value]="type">{{type}}</mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+  </ng-container>
+</div>

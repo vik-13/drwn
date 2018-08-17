@@ -1,0 +1,41 @@
+:host {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 220px;
+
+  max-height: calc(100vh - 100px);;
+}
+
+.layouts-list {
+  flex: 1;
+  overflow: auto;
+  scroll-behavior: smooth;
+
+  .layout {
+    display: flex;
+    height: 40px;
+    line-height: 40px;
+    padding: 0 8px;
+    border-bottom: 1px solid #eaeaea;
+    cursor: default;
+
+    .name {
+      display: block;
+      width: 100%;
+      padding: 0 8px;
+    }
+
+    &.active,
+    &:hover {
+      background-color: #ececec;
+    }
+  }
+}
+
+.layouts-actions {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

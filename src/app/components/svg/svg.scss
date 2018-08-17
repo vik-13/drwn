@@ -1,4 +1,29 @@
-:host {
+.drwn-area {
+  cursor: default;
+  user-select: none;
   background-color: white;
   box-shadow: 0 0 8px #eaeaea;
+
+  g {
+    opacity: .25;
+    pointer-events: none;
+
+    &.active {
+      opacity: 1;
+      pointer-events: auto;
+
+      line:hover {
+        stroke-width: 5px;
+      }
+
+      circle {
+        r: 3;
+
+        &:hover {
+          r: 5;
+        }
+      }
+    }
+  }
+
 }

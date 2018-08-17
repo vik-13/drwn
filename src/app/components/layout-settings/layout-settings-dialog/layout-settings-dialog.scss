@@ -1,0 +1,49 @@
+@import "~src/assets/styles/checkered";
+
+.layout-settings-container {
+  padding: 16px;
+  background-color: #ffffff;
+  box-shadow: 0 0 8px #eaeaea;
+}
+
+.color-selector-container {
+  display: flex;
+  align-items: center;
+  height: 45px;
+  width: 100%;
+
+  &.inactive {
+    opacity: .2;
+  }
+
+  .title {
+    flex: 1;
+  }
+
+  .color {
+    width: 75px;
+    height: 40px;
+
+    &.stroke-default {
+      background-color: #000000;
+    }
+
+    &.fill-default {
+      @include checkeredBackground();
+    }
+
+    &.transparent {
+      @include checkeredBackground();
+    }
+  }
+}
+
+.container {
+  padding: 8px 0;
+}
+
+.remove-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}

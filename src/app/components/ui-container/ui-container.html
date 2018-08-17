@@ -1,0 +1,8 @@
+<div class="container">
+  <div class="header" (dblclick)="toggleView($event)">
+    <span class="flex">{{name}}</span><span class="pin" (click)="toggleView($event); false">_</span>
+  </div>
+  <div class="content" *ngIf="expanded">
+    <ng-content></ng-content>
+  </div>
+</div>

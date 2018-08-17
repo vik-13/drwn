@@ -1,0 +1,34 @@
+:host {
+  position: absolute;
+  left: 5px;
+  top: 5px;
+  width: 100px;
+  max-height: calc(100vh - 100px);
+}
+
+.list {
+  .item {
+    width: calc(100% - 8px);
+    height: 25px;
+    margin: 4px;
+
+    .color {
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      user-select: none;
+      cursor: default;
+    }
+
+    &.active {
+      padding: 2px;
+      border: 2px solid #000000;
+    }
+  }
+}
+
+.control {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

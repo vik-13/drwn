@@ -1,0 +1,17 @@
+<ng-container *ngIf="colors$ | async as colors">
+  <ui-container name="Colors">
+    <div class="list">
+      <div class="item"
+           [class.active]="color === item.text"
+           (click)="toggle($event, item.text); false"
+           *ngFor="let item of colors">
+        <div class="color" [style.backgroundColor]="item.text" title="{{item.text}}">
+          <ng-container *ngIf="item.text === 'transparent'">transparent</ng-container>
+        </div>
+      </div>
+    </div>
+    <div class="control">
+      <button mat-button (click)="add()">Add</button>
+    </div>
+  </ui-container>
+</ng-container>

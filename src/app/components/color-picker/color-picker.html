@@ -1,0 +1,13 @@
+<div class="container" *ngIf="colors$ | async as colors">
+  <mat-form-field>
+    <input name="custom-color" matInput [value]="viewData" placeholder="Custom color"/>
+  </mat-form-field>
+  <div class="list">
+    <div class="item" *ngFor="let color of colors" [class.active]="viewData === color.text">
+      <div class="color"
+           title="{{color.text}}"
+           [class.transparent]="color.text === 'transparent'"
+           [style.backgroundColor]="color.text"></div>
+    </div>
+  </div>
+</div>

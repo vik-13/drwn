@@ -1,0 +1,38 @@
+:host {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+}
+
+.controls-container {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background-color: white;
+  box-shadow: 0 0 8px #eaeaea;
+
+  .controls-header {
+    display: flex;
+    height: 30px;
+    line-height: 30px;
+    padding: 0 8px;
+    color: #ffffff;
+    background-color: #3f51b5;
+    user-select: none;
+
+    .flex {
+      flex: 1;
+    }
+
+    .pin {
+      padding: 0 8px;
+      cursor: pointer;
+    }
+  }
+
+  .controls-list {
+    flex: 1;
+    overflow: auto;
+    scroll-behavior: smooth;
+  }
+}

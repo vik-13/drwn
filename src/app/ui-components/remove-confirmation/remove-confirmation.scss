@@ -1,0 +1,17 @@
+.container {
+  max-width: 220px;
+  padding: 16px;
+  background-color: #ffffff;
+  box-shadow: 0 0 8px #eaeaea;
+
+  .text {
+    padding: 20px 0;
+  }
+
+  .actions {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+}

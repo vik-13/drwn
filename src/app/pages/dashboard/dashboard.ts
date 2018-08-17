@@ -15,7 +15,7 @@ export class DashboardComponent {
   constructor(private store: AngularFirestore, private auth: AngularFireAuth) {
     this.collection$ = auth.user
       .pipe(switchMap((user) => {
-        return store.collection(`users/${user.uid}/drawings`)
+        return store.collection(`users/${user.uid}/drawings`, ref => ref.orderBy('created'))
           .snapshotChanges()
           .pipe(map((actions) => {
             return actions.map((item) => {
