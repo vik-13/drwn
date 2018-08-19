@@ -18,7 +18,6 @@ export class ColorPickerComponent {
               private auth: AngularFireAuth,
               private viewRef: ViewRef,
               @Inject(VIEW_DATA) public viewData) {
-    console.log(viewData);
     this.colors$ = auth.user
       .pipe(switchMap((user) => {
         return store.collection(`users/${user.uid}/colors`, ref => ref.orderBy('created')).valueChanges();

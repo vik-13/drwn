@@ -119,9 +119,9 @@ export class DrawComponent {
                 }, '');
                 return {
                   ...paths,
-                  path: `${path}Z`
+                  path: layout.closed && path ? `${path}Z` : path
                 };
-              })).pipe(tap(console.log))
+              }))
           };
         });
       }));

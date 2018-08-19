@@ -65,10 +65,11 @@ export class LayoutSettingsDialogComponent {
   remove() {
     this.removeConfirmation.open(this.removeButtonRef._elementRef, 'You are going to remove it forever. Are you sure?')
       .after().subscribe((confirmation) => {
-        console.log(confirmation);
+        if (confirmation) {
+          this.store.doc(this.viewData.path).delete().then(() => {
+            this.viewRef.close();
+          });
+        }
     });
-    // this.store.doc(this.viewData.path).delete().then(() => {
-    //   this.viewRef.close();
-    // });
   }
 }

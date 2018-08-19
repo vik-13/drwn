@@ -9,7 +9,7 @@
          (mouseup)="mouseUp($event)">
       <ng-container *ngFor="let layout of layouts">
         <g *ngIf="layout.path$ | async as path" [class.active]="currentActive === layout.id">
-          <ng-container *ngIf="layout.closed && layout.fillColor">
+          <ng-container *ngIf="layout.closed && layout.fillColor && path.path">
             <path [attr.d]="path.path" [attr.fill]="layout.fillColor"></path>
           </ng-container>
           <ng-container *ngFor="let line of path.lines">

@@ -32,7 +32,7 @@ export class PreviewComponent {
                   return accu;
                 }, '');
                 return layout.closed ? `${path}Z` : path;
-              })).pipe(tap(console.log))
+              }))
           };
         });
       }));
