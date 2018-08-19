@@ -6,9 +6,16 @@
   height: 100%;
 }
 
+.draw-area {
+  position: relative;
+}
+
 .info {
   position: absolute;
-  bottom: 5px;
-  left: 5px;
+  bottom: -16px;
+  right: 0;
   height: 20px;
+  background-color: white;
+  padding: 0 2px;
+  font-size: 12px;
 }

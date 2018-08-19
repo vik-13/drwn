@@ -1,17 +1,23 @@
-import { OverlayRef } from '@angular/cdk/overlay';
+import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { Subject } from 'rxjs';
+import { ElementRef } from '@angular/core';
 
 export class ViewRef {
   private _afterClose: Subject<any> = new Subject<any>();
 
-  constructor(private overlayRef: OverlayRef) {}
+  constructor(private overlay: Overlay, private overlayRef: OverlayRef) {}
 
   after() {
     return this._afterClose.asObservable();
   }
 
-  updatePosition() {
-    this.overlayRef.updatePosition();
+  updatePosition(elementRef: ElementRef) {
+    this.overlayRef.getConfig().positionStrategy = this.overlay.position().flexibleConnectedTo(elementRef).withPositions([{
+      originX: 'start',
+      originY: 'bottom',
+      overlayX: 'end',
+      overlayY: 'top'
+    }]);
   }
 
   close(result?) {

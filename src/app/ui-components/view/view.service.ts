@@ -13,20 +13,19 @@ export class ViewService {
   open(component, elementRef: ElementRef, data?: any) {
     const overlayRef = this.overlay.create({
       scrollStrategy: this.overlay.scrollStrategies.reposition(),
-      // positionStrategy: this.overlay.position().flexibleConnectedTo(elementRef).
-      positionStrategy: this.overlay.position().flexibleConnectedTo(elementRef).withPositions([
-        {
+      positionStrategy: this.overlay.position().flexibleConnectedTo(elementRef)
+        .withLockedPosition(true)
+        .withPositions([{
           originX: 'start',
           originY: 'bottom',
           overlayX: 'end',
           overlayY: 'top'
-        }
-      ]),
+        }]),
       hasBackdrop: true,
       backdropClass: 'cdk-overlay-transparent-backdrop'
     });
 
-    const viewRef = new ViewRef(overlayRef);
+    const viewRef = new ViewRef(this.overlay, overlayRef);
     const componentPortal = new ComponentPortal(
       component,
       null,

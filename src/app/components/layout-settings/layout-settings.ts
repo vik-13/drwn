@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, Input } from '@angular/core';
+import { AfterContentChecked, AfterViewChecked, ChangeDetectionStrategy, Component, ElementRef, Input } from '@angular/core';
 import { ViewService } from '../../ui-components/view/view.service';
 import { LayoutSettingsDialogComponent } from './layout-settings-dialog/layout-settings-dialog';
 
@@ -23,7 +23,11 @@ export class LayoutSettingsComponent {
   }
   private _path: string;
 
-  constructor(private viewService: ViewService, private elementRef: ElementRef) {}
+  last;
+
+  constructor(private viewService: ViewService, private elementRef: ElementRef) {
+    this.last = elementRef;
+  }
 
   open() {
     this.viewService.open(LayoutSettingsDialogComponent, this.elementRef, {

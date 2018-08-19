@@ -1,7 +1,7 @@
 <div class="internal-zone-container">
   <mat-toolbar color="primary">
     <!--<mat-icon routerLink="dashboard">home</mat-icon>-->
-    <span>DRaWiNg App</span>
+    <span class="home-link" (click)="home()">DRaWiNg App</span>
     <span class="flex">
       <ng-container *ngIf="offline$ | async">OFFLINE</ng-container>
     </span>

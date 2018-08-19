@@ -19,7 +19,8 @@
   <div class="color-selector-container" [class.inactive]="!layout.closed">
     <div class="title">Fill style:</div>
     <div class="color"
-         (click)="changeFillColor(layout.fillColor)"
+         #fillField
+         (click)="changeFillColor(fillField, layout.fillColor)"
          [style.backgroundColor]="layout.fillColor"
          [class.transparent]="layout.fillColor === 'transparent'"
          [class.fill-default]="!layout.fillColor"></div>

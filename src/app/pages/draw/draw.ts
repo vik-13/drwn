@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { AngularFireAuth } from 'angularfire2/auth';
-import { map, switchMap } from 'rxjs/operators';
+import { map, switchMap, tap } from 'rxjs/operators';
 import { ActivatedRoute } from '@angular/router';
 import { ControlType } from '../../components/controls/control.type';
 
@@ -25,14 +25,12 @@ interface Action {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DrawComponent {
-  width = 500;
-  height = 380;
-
   mouse: {x: number, y: number} = {
     x: 0,
     y: 0
   };
 
+  drawing$;
   layouts$;
   action: Action = {
     type: null,
@@ -49,6 +47,18 @@ export class DrawComponent {
               private store: AngularFirestore,
               private auth: AngularFireAuth,
               route: ActivatedRoute) {
+    this.drawing$ = auth.user
+      .pipe(switchMap((user) => {
+        return route.params
+          .pipe(map((params) => {
+            return {drawingId: params.id, userId: user.uid};
+          }));
+      }))
+      .pipe(switchMap((ids: {drawingId: string; userId: string}) => {
+        return store.doc(`users/${ids.userId}/drawings/${ids.drawingId}`)
+          .valueChanges();
+      }));
+
     this.layouts$ = auth.user
       .pipe(switchMap((user) => {
         return route.params
@@ -70,29 +80,48 @@ export class DrawComponent {
         return layouts.filter((layout) => layout.visible).map((layout) => {
           return {
             ...layout,
-            path$: this.store.collection(`${this.layoutsPath}/${layout.id}/path`, ref => ref.orderBy('index')).snapshotChanges()
+            path$: this.store.collection(`${this.layoutsPath}/${layout.id}/path`, ref => ref.orderBy('index'))
+              .snapshotChanges()
               .pipe(map((paths) => {
                 return paths.map((item) => {
                   return {id: item.payload.doc.id, ...item.payload.doc.data()};
                 });
               }))
               .pipe(map((paths: any[]) => {
-                return paths.map((item: any, index) => {
-                  const last = !paths[index + 1];
-                  const next = !last ? paths[index + 1] : paths[0];
-                  return {
-                    last,
-                    id1: item.id,
-                    x1: item.x,
-                    y1: item.y,
-                    id2: next.id,
-                    x2: next.x,
-                    y2: next.y,
-                    index1: item.index,
-                    index2: next.index
-                  };
-                });
+                return {
+                  dots: paths
+                };
               }))
+              .pipe(map((paths: any) => {
+                return {
+                  ...paths,
+                  lines: paths.dots.map((item: any, index) => {
+                    const last = !paths.dots[index + 1];
+                    const next = !last ? paths.dots[index + 1] : paths.dots[0];
+                    return {
+                      last,
+                      id1: item.id,
+                      x1: item.x,
+                      y1: item.y,
+                      id2: next.id,
+                      x2: next.x,
+                      y2: next.y,
+                      index1: item.index,
+                      index2: next.index
+                    };
+                  }).filter((line) => !(!layout.closed && line.last))
+                };
+              }))
+              .pipe(map((paths: any) => {
+                const path = paths.dots.reduce((accu, dot, index) => {
+                  accu += (!index ? `M${dot.x} ${dot.y} ` : `L${dot.x} ${dot.y} `);
+                  return accu;
+                }, '');
+                return {
+                  ...paths,
+                  path: `${path}Z`
+                };
+              })).pipe(tap(console.log))
           };
         });
       }));
@@ -123,7 +152,7 @@ export class DrawComponent {
     this.mouse.y = event.offsetY;
 
     if (this.action.type === ActionType.MOVE_POINT) {
-      this.store.doc(`${this.layoutsPath}/${this.currentActive}/path/${this.action.data.id1}`).update({
+      this.store.doc(`${this.layoutsPath}/${this.currentActive}/path/${this.action.data.id}`).update({
         x: this.mouse.x,
         y: this.mouse.y
       }).then();
@@ -175,7 +204,7 @@ export class DrawComponent {
       this.action.last = {x: this.mouse.x, y: this.mouse.y};
       this.action.data = point;
     } else {
-      this.store.doc(`${this.layoutsPath}/${this.currentActive}/path/${point.id1}`).delete().then();
+      this.store.doc(`${this.layoutsPath}/${this.currentActive}/path/${point.id}`).delete().then();
     }
 
     event.preventDefault();

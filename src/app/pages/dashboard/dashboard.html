@@ -1,5 +1,7 @@
 <ng-container *ngIf="collection$ | async as collection">
-  <a href=""
-     *ngFor="let item of collection"
-     [routerLink]="['/draw', item.id]">{{item.name}} ({{item.width}}x{{item.height}})</a>
+  <div class="drawings-container">
+    <div class="drawing" *ngFor="let item of collection" [routerLink]="['/draw', item.id]">
+      <drwn-preview [path]="item.path" [drawing]="item"></drwn-preview>
+    </div>
+  </div>
 </ng-container>

@@ -1,26 +1,30 @@
-<ng-container>
+<ng-container *ngIf="drawing$ | async as drawing">
   <div class="draw-area" *ngIf="layouts$ | async as layouts">
-    <svg [attr.width]="width"
-         [attr.height]="height"
+    <svg [attr.width]="drawing.width"
+         [attr.height]="drawing.height"
+         [class.demo-view]="!currentActive"
          oncontextmenu="return false;"
          (mousedown)="mouseDown($event)"
          (mousemove)="mouseMove($event)"
          (mouseup)="mouseUp($event)">
       <ng-container *ngFor="let layout of layouts">
         <g *ngIf="layout.path$ | async as path" [class.active]="currentActive === layout.id">
-          <ng-container *ngFor="let line of path">
+          <ng-container *ngIf="layout.closed && layout.fillColor">
+            <path [attr.d]="path.path" [attr.fill]="layout.fillColor"></path>
+          </ng-container>
+          <ng-container *ngFor="let line of path.lines">
             <line [attr.x1]="line.x1"
                   [attr.y1]="line.y1"
                   [attr.x2]="line.x2"
                   [attr.y2]="line.y2"
-                  stroke="#34495e"
+                  [attr.stroke]="layout.strokeColor"
                   stroke-width="1"
                   (mousedown)="clickOnLine($event, line)"></line>
           </ng-container>
-          <ng-container *ngFor="let point of path">
+          <ng-container *ngFor="let point of path.dots">
             <ng-container *ngIf="currentActive === layout.id">
-              <circle [attr.cx]="point.x1"
-                      [attr.cy]="point.y1"
+              <circle [attr.cx]="point.x"
+                      [attr.cy]="point.y"
                       r="3"
                       [attr.fill]="'#353535'"
                       (mousedown)="clickOnDot($event, point)"></circle>
@@ -29,8 +33,8 @@
         </g>
       </ng-container>
     </svg>
+    <div class="info">x: {{mouse.x}}; y: {{mouse.y}}</div>
   </div>
   <drwn-layouts (changeLayout)="changeLayout($event)"></drwn-layouts>
   <!--<drwn-colors></drwn-colors>-->
-  <div class="info">Position: (x: {{mouse.x}}, y: {{mouse.y}});</div>
 </ng-container>

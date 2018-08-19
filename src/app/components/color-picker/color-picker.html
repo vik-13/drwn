@@ -5,6 +5,7 @@
   <div class="list">
     <div class="item" *ngFor="let color of colors" [class.active]="viewData === color.text">
       <div class="color"
+           (click)="changeColor(color.text)"
            title="{{color.text}}"
            [class.transparent]="color.text === 'transparent'"
            [style.backgroundColor]="color.text"></div>

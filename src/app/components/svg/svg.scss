@@ -1,7 +1,10 @@
+@import "~src/assets/styles/checkered";
+
 .drwn-area {
+  @include checkeredBackground();
+
   cursor: default;
   user-select: none;
-  background-color: white;
   box-shadow: 0 0 8px #eaeaea;
 
   g {
@@ -26,4 +29,9 @@
     }
   }
 
+  &.demo-view {
+    g {
+      opacity: 1;
+    }
+  }
 }

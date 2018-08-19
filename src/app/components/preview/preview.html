@@ -1,0 +1,23 @@
+<div class="preview-container" *ngIf="layouts$ | async as layouts">
+  <div class="preview">
+    <svg [attr.viewBox]="'0 0 ' + drawing.width + ' ' + drawing.height"
+         [attr.width]="200"
+         [attr.height]="150"
+         preserveAspectRatio
+         oncontextmenu="return false;">
+      <ng-container *ngFor="let layout of layouts">
+        <g *ngIf="layout.path$ | async as path">
+          <ng-container *ngIf="layout.closed">
+            <path [attr.d]="path" [attr.fill]="layout.fillColor" [attr.stroke]="layout.strokeColor"></path>
+          </ng-container>
+          <ng-container *ngIf="!layout.closed">
+            <path [attr.d]="path" [attr.fill]="'transparent'" [attr.stroke]="layout.strokeColor"></path>
+          </ng-container>
+        </g>
+      </ng-container>
+    </svg>
+  </div>
+  <div class="description">
+    <span>{{drawing.name}}</span>
+  </div>
+</div>

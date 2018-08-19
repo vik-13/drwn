@@ -24,4 +24,8 @@ export class ColorPickerComponent {
         return store.collection(`users/${user.uid}/colors`, ref => ref.orderBy('created')).valueChanges();
       }));
   }
+
+  changeColor(color) {
+    this.viewRef.close(color);
+  }
 }

@@ -33,11 +33,6 @@ export class LayoutSettingsDialogComponent {
     this.layout$ = this.store.doc(viewData.path).snapshotChanges()
       .pipe(map((data) => {
         return {id: data.payload.id, ...data.payload.data()};
-      }))
-      .pipe(tap(() => {
-        setTimeout(() => {
-          viewRef.updatePosition();
-        });
       }));
   }
 
@@ -52,11 +47,19 @@ export class LayoutSettingsDialogComponent {
   }
 
   changeStrokeColor(elementRef, current = null) {
-    this.colorPicker.open(elementRef, current);
+    this.colorPicker.open(elementRef, current).after().subscribe((color) => {
+      if (color) {
+        this.store.doc(this.viewData.path).update({strokeColor: color}).then();
+      }
+    });
   }
 
-  changeFillColor(current = null) {
-
+  changeFillColor(elementRef, current = null) {
+    this.colorPicker.open(elementRef, current).after().subscribe((color) => {
+      if (color) {
+        this.store.doc(this.viewData.path).update({fillColor: color}).then();
+      }
+    });
   }
 
   remove() {
