@@ -1,13 +1,19 @@
-<ng-container>
+<ng-container *ngIf="animations$ | async as animations">
   <div class="container">
     <div class="title">Animations</div>
     <div class="content">
       <div class="list">
-        <div class="item first active">
-          1
+        <div class="item first active" (click)="toggle(-1, null)">
+          Original
         </div>
-        <div class="item">
-          2
+        <div class="item" *ngFor="let animation of animations; let i = index">
+          <span class="flex" (click)="toggle(i, animation.id)">+{{i + 1}}</span>
+          <span class="close-link"
+                #closeLink
+                (click)="remove($event, closeLink, animation.id)">X</span>
+        </div>
+        <div class="add-new" (click)="add($event)">
+          +
         </div>
       </div>
     </div>
