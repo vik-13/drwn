@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { SvgModule } from '../../components/svg/svg.module';
 import { LayoutsModule } from '../../components/layouts/layouts.module';
 import { ColorsModule } from '../../components/colors/colors.module';
+import { AnimationsModule } from '../../components/animations/animations.module';
 
 @NgModule({
   declarations: [
@@ -14,6 +15,7 @@ import { ColorsModule } from '../../components/colors/colors.module';
 
     LayoutsModule,
     ColorsModule,
+    AnimationsModule,
 
     SvgModule
   ],
