@@ -273,7 +273,15 @@ export class DrawComponent {
     this.mouse.y = event.offsetY;
 
     if (this.action.type === ActionType.MOVE_POINT) {
-      this.movePoint(this.action.data.overrided ? this.action.data.originalId : this.action.data.id, this.mouse.x, this.mouse.y).then();
+      console.log(this.action.data);
+      if (this.currentAnimation && !this.action.data.overrided) {
+        this.addAnimationPoint(this.action.data.id, this.mouse.x, this.mouse.y).then();
+      } else {
+        this.movePoint(
+          this.action.data.overrided ? this.action.data.originalId : this.action.data.id,
+          this.mouse.x, this.mouse.y
+        ).then();
+      }
     } else if (this.action.type === ActionType.MOVE_LINE) {
       this.action.data.x1 += (this.mouse.x - this.action.last.x);
       this.action.data.y1 += (this.mouse.y - this.action.last.y);
@@ -326,6 +334,15 @@ export class DrawComponent {
   addPoint(x, y, index) {
     return this.store.collection(`${this.layoutsPath}/${this.currentActive}/path`).add({
       index,
+      x,
+      y
+    });
+  }
+
+  addAnimationPoint(id, x, y) {
+    return this.store.collection(`${this.layoutsPath}/${this.currentActive}/path`).add({
+      animation: this.currentAnimation,
+      relatedTo: id,
       x,
       y
     });
