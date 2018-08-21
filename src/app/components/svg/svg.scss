@@ -7,7 +7,17 @@
   user-select: none;
   box-shadow: 0 0 8px #eaeaea;
 
-  g {
+  g.animation-layout {
+    opacity: .2;
+    pointer-events: none;
+
+    &.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+
+  g.layout {
     opacity: .25;
     pointer-events: none;
 
@@ -30,7 +40,7 @@
   }
 
   &.demo-view {
-    g {
+    g.layout {
       opacity: 1;
     }
   }

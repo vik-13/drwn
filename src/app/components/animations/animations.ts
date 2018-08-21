@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { map, switchMap } from 'rxjs/operators';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { AngularFireAuth } from 'angularfire2/auth';
@@ -11,7 +11,7 @@ import { RemoveConfirmationService } from '../../ui-components/remove-confirmati
   styleUrls: ['animations.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AnimationsComponent {
+export class AnimationsComponent implements OnInit {
 
   @Output() change: EventEmitter<string> = new EventEmitter<string>();
 
@@ -42,6 +42,10 @@ export class AnimationsComponent {
             });
           }));
       }));
+  }
+
+  ngOnInit() {
+    this.change.emit(this.id);
   }
 
   toggle(index, id) {

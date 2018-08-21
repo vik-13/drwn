@@ -3,10 +3,10 @@
     <div class="title">Animations</div>
     <div class="content">
       <div class="list">
-        <div class="item first active" (click)="toggle(-1, null)">
+        <div class="item first" (click)="toggle(-1, null)" [class.active]="!id">
           Original
         </div>
-        <div class="item" *ngFor="let animation of animations; let i = index">
+        <div class="item" *ngFor="let animation of animations; let i = index" [class.active]="id === animation.id">
           <span class="flex" (click)="toggle(i, animation.id)">+{{i + 1}}</span>
           <span class="close-link"
                 #closeLink

@@ -1,40 +1,49 @@
 <ng-container *ngIf="drawing$ | async as drawing">
-  <div class="draw-area" *ngIf="layouts$ | async as layouts">
-    <svg [attr.width]="drawing.width"
-         [attr.height]="drawing.height"
-         [class.demo-view]="!currentActive"
-         oncontextmenu="return false;"
-         (mousedown)="mouseDown($event)"
-         (mousemove)="mouseMove($event)"
-         (mouseup)="mouseUp($event)">
-      <ng-container *ngFor="let layout of layouts">
-        <g *ngIf="layout.path$ | async as path" [class.active]="currentActive === layout.id">
-          <ng-container *ngIf="layout.closed && layout.fillColor && path.path">
-            <path [attr.d]="path.path" [attr.fill]="layout.fillColor"></path>
-          </ng-container>
-          <ng-container *ngFor="let line of path.lines">
-            <line [attr.x1]="line.x1"
-                  [attr.y1]="line.y1"
-                  [attr.x2]="line.x2"
-                  [attr.y2]="line.y2"
-                  [attr.stroke]="layout.strokeColor"
-                  stroke-width="1"
-                  (mousedown)="clickOnLine($event, line)"></line>
-          </ng-container>
-          <ng-container *ngFor="let point of path.dots">
-            <ng-container *ngIf="currentActive === layout.id">
-              <circle [attr.cx]="point.x"
-                      [attr.cy]="point.y"
-                      r="3"
-                      [attr.fill]="'#353535'"
-                      (mousedown)="clickOnDot($event, point)"></circle>
+  <ng-container *ngIf="animations$ | async as animations">
+    <div class="draw-area">
+      <svg [attr.width]="drawing.width"
+           [attr.height]="drawing.height"
+           [class.demo-view]="!currentActive"
+           oncontextmenu="return false;"
+           (mousedown)="mouseDown($event)"
+           (mousemove)="mouseMove($event)"
+           (mouseup)="mouseUp($event)">
+        <g class="animation-layout"
+           *ngFor="let animation of animations; let i = index"
+           [class.original]="!animation.id"
+           [class.active]="animation.id === currentAnimation">
+          <ng-container *ngIf="animation.layouts$ | async as layouts">
+            <ng-container *ngFor="let layout of layouts">
+              <g class="layout" *ngIf="layout.path$ | async as path" [class.active]="currentActive === layout.id">
+                <ng-container *ngIf="layout.closed && layout.fillColor && path.path">
+                  <path [attr.d]="path.path" [attr.fill]="layout.fillColor"></path>
+                </ng-container>
+                <ng-container *ngFor="let line of path.lines">
+                  <line [attr.x1]="line.x1"
+                        [attr.y1]="line.y1"
+                        [attr.x2]="line.x2"
+                        [attr.y2]="line.y2"
+                        [attr.stroke]="layout.strokeColor"
+                        stroke-width="1"
+                        (mousedown)="clickOnLine($event, line)"></line>
+                </ng-container>
+                <ng-container *ngFor="let point of path.dots">
+                  <ng-container *ngIf="currentActive === layout.id">
+                    <circle [attr.cx]="point.x"
+                            [attr.cy]="point.y"
+                            r="3"
+                            [attr.fill]="'#353535'"
+                            (mousedown)="clickOnDot($event, point)"></circle>
+                  </ng-container>
+                </ng-container>
+              </g>
             </ng-container>
           </ng-container>
         </g>
-      </ng-container>
-    </svg>
-    <div class="info">x: {{mouse.x}}; y: {{mouse.y}}</div>
-  </div>
-  <drwn-layouts (changeLayout)="changeLayout($event)"></drwn-layouts>
-  <drwn-animations></drwn-animations>
+      </svg>
+      <div class="info">x: {{mouse.x}}; y: {{mouse.y}}</div>
+    </div>
+    <drwn-layouts (changeLayout)="changeLayout($event)"></drwn-layouts>
+    <drwn-animations (change)="changeAnimation($event)"></drwn-animations>
+  </ng-container>
 </ng-container>
