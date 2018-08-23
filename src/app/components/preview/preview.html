@@ -1,11 +1,11 @@
-<div class="preview-container" *ngIf="paths$ | async as paths">
+<div class="preview-container" *ngIf="all$ | async as all">
   <div class="preview">
     <svg [attr.viewBox]="'0 0 ' + drawing.width + ' ' + drawing.height"
          [attr.width]="200"
          [attr.height]="150"
          preserveAspectRatio
          oncontextmenu="return false;">
-      <ng-container *ngFor="let path of paths">
+      <ng-container *ngFor="let path of all">
         <g>
           <ng-container *ngIf="path.z">
             <path [attr.d]="path._path" [attr.fill]="path.fill" [attr.stroke]="path.stroke"></path>

@@ -42,7 +42,7 @@
              [class.active]="animation.id === animationId">
             <ng-container *ngIf="animation.paths$ | async as paths">
               <ng-container *ngFor="let path of paths">
-                <g class="path" [class.active]="animation.id === animationId && pathId === path.id">
+                <g class="path" [class.active]="animation.id === animationId && pathId === path.id"  (mousedown)="clickOnPath($event, path)">
                   <ng-container *ngIf="path.z && path.fill && path._path">
                     <path [attr.d]="path._path" [attr.fill]="path.fill"></path>
                   </ng-container>

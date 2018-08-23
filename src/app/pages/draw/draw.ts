@@ -178,7 +178,7 @@ export class DrawComponent {
       this.action.type = ActionType.MOVE_POINT;
       this.action.last = {x: this.mouse.x, y: this.mouse.y};
       this.action.data = {...point, index, coords};
-    } else {
+    } else if (!this.animationId) {
       this.removePoint(coords, index).then();
     }
 
@@ -187,7 +187,7 @@ export class DrawComponent {
   }
 
   clickOnLine(event, coords, index, line) {
-    if (!event.button) {
+    if (!this.animationId && !event.button) {
       this.addPointOnLine(coords, index, this.mouse.x, this.mouse.y).then();
     }
 

@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { AngularFirestore } from 'angularfire2/firestore';
-import { map, switchMap, tap } from 'rxjs/operators';
+import { first, map, switchMap, tap } from 'rxjs/operators';
 import { AngularFireAuth } from 'angularfire2/auth';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, forkJoin, interval } from 'rxjs';
 
 @Component({
   selector: 'drwn-preview',
@@ -23,6 +23,9 @@ export class PreviewComponent {
   @Input() drawing;
 
   paths$;
+  animations$;
+  all$;
+  animationsRef;
 
   constructor(private store: AngularFirestore, private auth: AngularFireAuth) {
     this.paths$ = auth.user
@@ -49,7 +52,79 @@ export class PreviewComponent {
             }, '')}${path.z ? 'Z' : ''}`
           };
         });
+      }));
+
+    this.animations$ = auth.user
+      .pipe(switchMap((user) => {
+        return this.drawingId$
+          .pipe(map(drawingId => [user.uid, drawingId]));
       }))
-      .pipe(tap(console.log));
+      .pipe(switchMap(([userId, drawingId]: [string, string]) => {
+        this.animationsRef = `users/${userId}/drawings/${drawingId}/animations`;
+        return store.collection(this.animationsRef, ref => ref.orderBy('created', 'asc'))
+          .snapshotChanges()
+          .pipe(map((paths) => {
+            return paths.map((item) => {
+              return {id: item.payload.doc.id, ...item.payload.doc.data()};
+            });
+          }));
+      }))
+      .pipe(switchMap((animations: any[]) => {
+        const paths = [];
+        animations.forEach((animation) => {
+          paths.push(
+            store.collection(`${this.animationsRef}/${animation.id}/paths`)
+              .snapshotChanges()
+              .pipe(map((animationPaths: any[]) => {
+                return animationPaths.map((item) => {
+                  return {id: item.payload.doc.id, ...item.payload.doc.data()};
+                });
+              }))
+              .pipe(first())
+          );
+        });
+        return forkJoin(...paths);
+      }));
+
+    this.all$ = this.paths$
+      .pipe(switchMap((paths: any[]) => {
+        return this.animations$
+          .pipe(map((animations: any[]) => {
+            const sprites = [];
+            sprites.push(paths);
+
+            animations.forEach((animationPaths: any[]) => {
+              const animationPathsObject = {};
+
+              animationPaths = animationPaths.map((path) => {
+                return {
+                  ...path,
+                  _path: `${path.coords.reduce((pathStr, dot, index) => {
+                    pathStr += (!index ? `M${dot.x} ${dot.y} ` : `L${dot.x} ${dot.y} `);
+                    return pathStr;
+                  }, '')}${path.z ? 'Z' : ''}`
+                };
+              });
+
+              animationPaths.forEach((path) => {
+                animationPathsObject[path.id] = path;
+              });
+
+              const preparedPaths = paths.map((path) => {
+                return animationPathsObject[path.id] ? animationPathsObject[path.id] : path;
+              });
+
+              sprites.push(preparedPaths);
+            });
+
+            return sprites;
+          }));
+      }))
+      .pipe(switchMap((sprites: any[]) => {
+        return interval(100)
+          .pipe(map((i) => {
+            return sprites[i % sprites.length];
+          }));
+      }));
   }
 }
