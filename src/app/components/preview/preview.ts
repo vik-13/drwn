@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { AngularFirestore } from 'angularfire2/firestore';
-import { map, tap } from 'rxjs/operators';
+import { map, switchMap, tap } from 'rxjs/operators';
+import { AngularFireAuth } from 'angularfire2/auth';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'drwn-preview',
@@ -10,40 +12,44 @@ import { map, tap } from 'rxjs/operators';
 })
 export class PreviewComponent {
   @Input()
-  get path(): string { return this._path; }
-  set path(value: string) {
-    this._path = value;
-    this.layouts$ = this.store.collection(`${this._path}/layouts`)
-      .snapshotChanges()
-      .pipe(map((actions) => {
-        return actions.map((item) => {
-          return {id: item.payload.doc.id, ...item.payload.doc.data()};
-        });
-      }))
-      .pipe(map((layouts: any[]) => {
-        return layouts.filter((layout) => layout.visible).map((layout) => {
-          return {
-            ...layout,
-            path$: this.store.collection(`${this._path}/layouts/${layout.id}/path`, ref => ref.orderBy('index'))
-              .valueChanges()
-              .pipe(map((paths: any[]) => {
-                const path = paths.reduce((accu, dot, index) => {
-                  accu += (!index ? `M${dot.x} ${dot.y} ` : `L${dot.x} ${dot.y} `);
-                  return accu;
-                }, '');
-                return layout.closed ? `${path}Z` : path;
-              }))
-          };
-        });
-      }));
+  get drawingId(): string { return this._drawingId; }
+  set drawingId(value: string) {
+    this._drawingId = value;
+    this.drawingId$.next(value);
   }
-  private _path: string;
+  private _drawingId: string;
+  private drawingId$: BehaviorSubject<string> = new BehaviorSubject(null);
 
   @Input() drawing;
 
-  layouts$;
+  paths$;
 
-  constructor(private store: AngularFirestore) {
-
+  constructor(private store: AngularFirestore, private auth: AngularFireAuth) {
+    this.paths$ = auth.user
+      .pipe(switchMap((user) => {
+        return this.drawingId$
+          .pipe(map(drawingId => [user.uid, drawingId]));
+      }))
+      .pipe(switchMap(([userId, drawingId]: [string, string]) => {
+        return store.collection(`users/${userId}/drawings/${drawingId}/paths`)
+          .snapshotChanges()
+          .pipe(map((paths) => {
+            return paths.map((item) => {
+              return {id: item.payload.doc.id, ...item.payload.doc.data()};
+            });
+          }));
+      }))
+      .pipe(map((paths: any[]) => {
+        return paths.map((path) => {
+          return {
+            ...path,
+            _path: `${path.coords.reduce((pathStr, dot, index) => {
+              pathStr += (!index ? `M${dot.x} ${dot.y} ` : `L${dot.x} ${dot.y} `);
+              return pathStr;
+            }, '')}${path.z ? 'Z' : ''}`
+          };
+        });
+      }))
+      .pipe(tap(console.log));
   }
 }

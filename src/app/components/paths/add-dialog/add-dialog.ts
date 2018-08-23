@@ -4,12 +4,12 @@ import { VIEW_DATA } from '../../../ui-components/view/view-data';
 import { AngularFirestore } from 'angularfire2/firestore';
 
 @Component({
-  selector: 'add-layout-dialog',
-  templateUrl: 'add-layout-dialog.html',
-  styleUrls: ['add-layout-dialog.scss'],
+  selector: 'add-dialog',
+  templateUrl: 'add-dialog.html',
+  styleUrls: ['add-dialog.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AddLayoutDialogComponent {
+export class AddDialogComponent {
   @ViewChild('field')
   set field(value) {
     setTimeout(() => {
@@ -23,13 +23,14 @@ export class AddLayoutDialogComponent {
 
   create(event) {
     if (event.target.value) {
-      this.store.collection(this.viewData.path).add({
+      this.store.collection(this.viewData.pathRef).add({
         name: event.target.value,
         created: +new Date(),
-        visible: true,
-        closed: true,
-        strokeColor: '#000000',
-        fillColor: 'transparent'
+        visibility: true,
+        z: true,
+        stroke: '#000000',
+        fill: 'transparent',
+        coords: []
       }).then(() => {
         this.viewRef.close();
       });

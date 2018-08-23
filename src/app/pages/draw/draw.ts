@@ -1,9 +1,8 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { AngularFireAuth } from 'angularfire2/auth';
-import { map, switchMap, tap } from 'rxjs/operators';
+import { first, map, switchMap } from 'rxjs/operators';
 import { ActivatedRoute } from '@angular/router';
-import { ControlType } from '../../components/controls/control.type';
 
 enum ActionType {
   MOVE_POINT,
@@ -30,22 +29,24 @@ export class DrawComponent {
     y: 0
   };
 
-  drawing$;
-  layouts$;
-  original$;
-  animations$;
   action: Action = {
     type: null,
     start: {x: 0, y: 0},
     last: {x: 0, y: 0},
     data: null
   };
-  currentActive: string = null;
-  control: ControlType;
-  currentAnimation: string = null;
 
-  layoutsPath;
-  animationsPath;
+
+  drawingId: string = null;
+  pathId: string = null;
+  animationId: string = null;
+
+  drawing$;
+  paths$;
+  animations$;
+
+  pathsRef: string;
+  animationsRef: string;
 
   constructor(private changeDetection: ChangeDetectorRef,
               private store: AngularFirestore,
@@ -55,15 +56,15 @@ export class DrawComponent {
       .pipe(switchMap((user) => {
         return route.params
           .pipe(map((params) => {
+            this.drawingId = params.id;
             return {drawingId: params.id, userId: user.uid};
           }));
       }))
       .pipe(switchMap((ids: {drawingId: string; userId: string}) => {
-        return store.doc(`users/${ids.userId}/drawings/${ids.drawingId}`)
-          .valueChanges();
+        return store.doc(`users/${ids.userId}/drawings/${ids.drawingId}`).valueChanges();
       }));
 
-    this.layouts$ = auth.user
+    this.paths$ = auth.user
       .pipe(switchMap((user) => {
         return route.params
           .pipe(map((params) => {
@@ -71,74 +72,39 @@ export class DrawComponent {
           }));
       }))
       .pipe(switchMap((ids: {drawingId: string; userId: string}) => {
-        this.layoutsPath = `users/${ids.userId}/drawings/${ids.drawingId}/layouts`;
-        return store.collection(this.layoutsPath)
+        this.pathsRef = `users/${ids.userId}/drawings/${ids.drawingId}/paths`;
+        return store.collection(this.pathsRef)
           .snapshotChanges()
-          .pipe(map((actions) => {
-            return actions.map((item) => {
+          .pipe(map((paths: any[]) => {
+            return paths.map((item) => {
               return {id: item.payload.doc.id, ...item.payload.doc.data()};
             });
-          }));
-      }))
-      // .pipe(map((layouts: any[]) => {
-      //   return layouts.filter((layout) => layout.visible).map((layout) => {
-      //     return {
-      //       ...layout,
-      //       path$: this.store.collection(`${this.layoutsPath}/${layout.id}/path`, ref => ref.orderBy('index'))
-      //         .snapshotChanges()
-      //         .pipe(map((paths) => {
-      //           return paths.map((item) => {
-      //             return {id: item.payload.doc.id, ...item.payload.doc.data()};
-      //           });
-      //         }))
-      //         .pipe(map((paths: any[]) => {
-      //           return {
-      //             dots: paths
-      //           };
-      //         }))
-      //         .pipe(map((paths: any) => {
-      //           return {
-      //             ...paths,
-      //             lines: paths.dots.map((item: any, index) => {
-      //               const last = !paths.dots[index + 1];
-      //               const next = !last ? paths.dots[index + 1] : paths.dots[0];
-      //               return {
-      //                 last,
-      //                 id1: item.id,
-      //                 x1: item.x,
-      //                 y1: item.y,
-      //                 id2: next.id,
-      //                 x2: next.x,
-      //                 y2: next.y,
-      //                 index1: item.index,
-      //                 index2: next.index
-      //               };
-      //             }).filter((line) => !(!layout.closed && line.last))
-      //           };
-      //         }))
-      //         .pipe(map((paths: any) => {
-      //           const path = paths.dots.reduce((accu, dot, index) => {
-      //             accu += (!index ? `M${dot.x} ${dot.y} ` : `L${dot.x} ${dot.y} `);
-      //             return accu;
-      //           }, '');
-      //           return {
-      //             ...paths,
-      //             path: layout.closed && path ? `${path}Z` : path
-      //           };
-      //         }))
-      //     };
-      //   });
-      // }))
-;
+          }))
+          .pipe(map((paths: any[]) => {
+            return paths.filter(path => path.visibility).map((path) => {
+              const pathString = path.coords.reduce((accu, dot, index) => {
+                accu += (!index ? `M${dot.x} ${dot.y} ` : `L${dot.x} ${dot.y} `);
+                return accu;
+              }, '');
 
-    // this.original$ = this.layouts$
-    //   .pipe(map((layouts: any[]) => {
-    //     return layouts.filter((layout) => layout.visible).map((layout) => {
-    //       return {
-    //         ...layout
-    //       };
-    //     });
-    //   }));
+              return {
+                ...path,
+                _lines: path.coords.map((coord, index) => {
+                  const last = !path.coords[index + 1];
+                  const next = last ? path.coords[0] : path.coords[index + 1];
+                  return {
+                    x1: coord.x,
+                    y1: coord.y,
+                    x2: next.x,
+                    y2: next.y,
+                    last
+                  };
+                }).filter(line => !(!path.z && line.last)),
+                _path: path.z && pathString ? `${pathString}Z` : pathString
+              };
+            });
+          }));
+      }));
 
     this.animations$ = auth.user
       .pipe(switchMap((user) => {
@@ -148,148 +114,95 @@ export class DrawComponent {
           }));
       }))
       .pipe(switchMap((ids: {drawingId: string; userId: string}) => {
-        this.animationsPath = `users/${ids.userId}/drawings/${ids.drawingId}/animations`;
-        return store.collection(this.animationsPath)
+        this.animationsRef = `users/${ids.userId}/drawings/${ids.drawingId}/animations`;
+        return store.collection(this.animationsRef, ref => ref.orderBy('created', 'asc'))
           .snapshotChanges()
-          .pipe(map((actions) => {
-            return actions.map((item) => {
+          .pipe(map((animations: any[]) => {
+            return animations.map((item) => {
               return {id: item.payload.doc.id, ...item.payload.doc.data()};
             });
           }));
       }))
       .pipe(map((animations: any[]) => {
-        animations.unshift({
-          id: null
-        });
         return animations.map((animation) => {
           return {
             ...animation,
-            layouts$: this.layouts$
-              .pipe(map((layouts: any[]) => {
-                return layouts.filter((layout) => layout.visible).map((layout) => {
+            paths$: store.collection(`${this.animationsRef}/${animation.id}/paths`)
+              .snapshotChanges()
+              .pipe(map((paths: any[]) => {
+                return paths.map((item) => {
+                  return {id: item.payload.doc.id, ...item.payload.doc.data()};
+                });
+              }))
+              .pipe(map((paths: any[]) => {
+                return paths.map((path) => {
+                  const pathString = path.coords.reduce((accu, dot, index) => {
+                    accu += (!index ? `M${dot.x} ${dot.y} ` : `L${dot.x} ${dot.y} `);
+                    return accu;
+                  }, '');
+
                   return {
-                    ...layout,
-                    path$: this.store.collection(`${this.layoutsPath}/${layout.id}/path`, ref => ref.orderBy('index'))
-                      .snapshotChanges()
-                      .pipe(map((paths) => {
-                        return paths.map((item) => {
-                          return {id: item.payload.doc.id, ...item.payload.doc.data()};
-                        });
-                      }))
-                      .pipe(map((paths: any[]) => {
-                        paths.forEach((item) => {
-                          if (item.relatedTo && item.animation === animation.id) {
-                            const original = paths.filter((path) => path.id === item.relatedTo);
-                            if (original.length) {
-                              original[0].x = item.x;
-                              original[0].y = item.y;
-                              original[0].overrided = true;
-                              original[0].originalId = item.id;
-                            }
-                          }
-                        });
-                        return {
-                          dots: paths.filter((path) => !path.relatedTo)
-                        };
-                      }))
-                      .pipe(map((paths: any) => {
-                        return {
-                          ...paths,
-                          lines: paths.dots.map((item: any, index) => {
-                            const last = !paths.dots[index + 1];
-                            const next = !last ? paths.dots[index + 1] : paths.dots[0];
-                            return {
-                              last,
-                              id1: item.id,
-                              x1: item.x,
-                              y1: item.y,
-                              id2: next.id,
-                              x2: next.x,
-                              y2: next.y,
-                              index1: item.index,
-                              index2: next.index
-                            };
-                          }).filter((line) => !(!layout.closed && line.last))
-                        };
-                      }))
-                      .pipe(map((paths: any) => {
-                        const path = paths.dots.reduce((accu, dot, index) => {
-                          accu += (!index ? `M${dot.x} ${dot.y} ` : `L${dot.x} ${dot.y} `);
-                          return accu;
-                        }, '');
-                        return {
-                          ...paths,
-                          path: layout.closed && path ? `${path}Z` : path
-                        };
-                      }))
+                    ...path,
+                    _lines: path.coords.map((coord, index) => {
+                      const last = !path.coords[index + 1];
+                      const next = last ? path.coords[0] : path.coords[index + 1];
+                      return {
+                        x1: coord.x,
+                        y1: coord.y,
+                        x2: next.x,
+                        y2: next.y,
+                        last
+                      };
+                    }).filter(line => !(!path.z && line.last)),
+                    _path: path.z && pathString ? `${pathString}Z` : pathString
                   };
                 });
               }))
           };
         });
-      }))
-      .pipe(tap((data) => {
-        // console.log('animations', data);
-        // data.forEach((item) => {
-        //   item.layouts$.subscribe((test) => {
-        //     console.log('layouts', test);
-        //     test.forEach((item2) => {
-        //       item2.path$.subscribe((test2) => {
-        //         console.log('path', test2);
-        //       });
-        //     });
-        //   });
-        // });
       }));
   }
 
-  changeLayout(layoutId) {
-    this.currentActive = layoutId;
+  switchPath(id: string) {
+    this.pathId = id;
     this.changeDetection.markForCheck();
   }
 
-  changeAnimation(animationId) {
-    this.currentAnimation = animationId;
+  switchAnimation(id: string) {
+    this.animationId = id;
     this.changeDetection.markForCheck();
+  }
+
+  clickOnDot(event, coords, index, point) {
+    if (!event.button) {
+      this.action.type = ActionType.MOVE_POINT;
+      this.action.last = {x: this.mouse.x, y: this.mouse.y};
+      this.action.data = {...point, index, coords};
+    } else {
+      this.removePoint(coords, index).then();
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  clickOnLine(event, coords, index, line) {
+    if (!event.button) {
+      this.addPointOnLine(coords, index, this.mouse.x, this.mouse.y).then();
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
   }
 
   mouseDown(event) {
     this.mouse.x = event.offsetX;
     this.mouse.y = event.offsetY;
-    if (!event.button) {
+    if (!this.animationId && !event.button) {
       this.addPoint(
         this.mouse.x,
-        this.mouse.y,
-        +new Date()
+        this.mouse.y
       ).then();
-    } else if (this.control === ControlType.MOVE) {
-      // MOVE ALL;
-    }
-    this.action.last = {x: this.mouse.x, y: this.mouse.y};
-  }
-
-  mouseMove(event) {
-    this.mouse.x = event.offsetX;
-    this.mouse.y = event.offsetY;
-
-    if (this.action.type === ActionType.MOVE_POINT) {
-      console.log(this.action.data);
-      if (this.currentAnimation && !this.action.data.overrided) {
-        this.addAnimationPoint(this.action.data.id, this.mouse.x, this.mouse.y).then();
-      } else {
-        this.movePoint(
-          this.action.data.overrided ? this.action.data.originalId : this.action.data.id,
-          this.mouse.x, this.mouse.y
-        ).then();
-      }
-    } else if (this.action.type === ActionType.MOVE_LINE) {
-      this.action.data.x1 += (this.mouse.x - this.action.last.x);
-      this.action.data.y1 += (this.mouse.y - this.action.last.y);
-      this.movePoint(this.action.data.id1, this.action.data.x1, this.action.data.y1).then();
-
-      this.action.data.x2 += (this.mouse.x - this.action.last.x);
-      this.action.data.y2 += (this.mouse.y - this.action.last.y);
-      this.movePoint(this.action.data.id2, this.action.data.x2, this.action.data.y2).then();
     }
     this.action.last = {x: this.mouse.x, y: this.mouse.y};
   }
@@ -297,65 +210,57 @@ export class DrawComponent {
   mouseUp(event) {
     this.mouse.x = event.offsetX;
     this.mouse.y = event.offsetY;
-
     this.action.type = null;
   }
 
-  clickOnLine(event, line) {
-    if (!event.button) {
-      this.action.type = ActionType.MOVE_LINE;
-      this.action.last = {x: this.mouse.x, y: this.mouse.y};
-      this.action.data = line;
-    } else {
-      this.addPoint(
-        (line.x1 + line.x2) / 2,
-        (line.y1 + line.y2) / 2,
-        line.last ? +new Date() : (line.index1 + line.index2) / 2
-      ).then();
+  mouseMove(event) {
+    this.mouse.x = event.offsetX;
+    this.mouse.y = event.offsetY;
+
+    if (this.action.type === ActionType.MOVE_POINT) {
+      this.updatePoint(this.action.data.coords, this.action.data.index, this.mouse.x, this.mouse.y).then();
     }
-
-    event.preventDefault();
-    event.stopPropagation();
+    this.action.last = {x: this.mouse.x, y: this.mouse.y};
   }
 
-  clickOnDot(event, point) {
-    if (!event.button) {
-      this.action.type = ActionType.MOVE_POINT;
-      this.action.last = {x: this.mouse.x, y: this.mouse.y};
-      this.action.data = point;
+  addPointOnLine(coords: any[], index, x, y) {
+    coords.splice(index + 1, 0, {x, y});
+
+    return this.store.doc(`${this.pathsRef}/${this.pathId}`).update({
+      coords: coords
+    }).then();
+  }
+
+  addPoint(x, y) {
+    return new Promise((resolve, reject) => {
+      this.store.doc(`${this.pathsRef}/${this.pathId}`).valueChanges()
+        .pipe(first())
+        .subscribe((path: any) => {
+          return this.store.doc(`${this.pathsRef}/${this.pathId}`).update({
+            coords: [...path.coords, {x, y}]
+          }).then(() => {resolve(); }, reject);
+        });
+    });
+  }
+
+  updatePoint(coords: any[], index, x, y) {
+    coords[index].x = x;
+    coords[index].y = y;
+    if (this.animationId) {
+      return this.store.doc(`${this.animationsRef}/${this.animationId}/paths/${this.pathId}`).update({
+        coords: coords
+      });
     } else {
-      this.removePoint(point.id).then();
+      return this.store.doc(`${this.pathsRef}/${this.pathId}`).update({
+        coords: coords
+      });
     }
-
-    event.preventDefault();
-    event.stopPropagation();
   }
 
-  addPoint(x, y, index) {
-    return this.store.collection(`${this.layoutsPath}/${this.currentActive}/path`).add({
-      index,
-      x,
-      y
+  removePoint(coords: any[], index) {
+    coords.splice(index, 1);
+    return this.store.doc(`${this.pathsRef}/${this.pathId}`).update({
+      coords: coords
     });
-  }
-
-  addAnimationPoint(id, x, y) {
-    return this.store.collection(`${this.layoutsPath}/${this.currentActive}/path`).add({
-      animation: this.currentAnimation,
-      relatedTo: id,
-      x,
-      y
-    });
-  }
-
-  movePoint(id, x, y) {
-    return this.store.doc(`${this.layoutsPath}/${this.currentActive}/path/${id}`).update({
-      x,
-      y
-    });
-  }
-
-  removePoint(id) {
-    return this.store.doc(`${this.layoutsPath}/${this.currentActive}/path/${id}`).delete();
   }
 }

@@ -34,7 +34,7 @@ export class AnimationsComponent implements OnInit {
       }))
       .pipe(switchMap((ids: {drawingId: string, userId: string}) => {
         this.animationsPath = `users/${ids.userId}/drawings/${ids.drawingId}/animations`;
-        return store.collection(this.animationsPath)
+        return store.collection(this.animationsPath, ref => ref.orderBy('created', 'asc'))
           .snapshotChanges()
           .pipe(map((actions) => {
             return actions.map((item) => {

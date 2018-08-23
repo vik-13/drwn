@@ -1,0 +1,24 @@
+<ng-container *ngIf="paths$ | async as paths">
+  <ng-container *ngIf="animationPaths$ | async as animationPaths">
+    <ui-container name="Paths">
+      <div class="list" [class.animation]="animationId">
+        <div class="item" *ngFor="let path of paths"
+             [class.active]="path.id === pathId" [class.inherited]="animationId && animationPaths[path.id]">
+          <mat-checkbox name="visibility"
+                        [checked]="path.visibility"
+                        (change)="toggleVisibility($event, path.id)"></mat-checkbox>
+          <span class="name" (click)="toggleActive(path.id, animationPaths[path.id])">{{path.name}}</span>
+          <span class="info">points: {{path.coords.length}}</span>
+          <span class="attach-icon-container" [class.disabled]="!animationId">
+            <mat-icon *ngIf="!(animationId && animationPaths[path.id])" (click)="attachPath($event, path)">add_circle</mat-icon>
+            <mat-icon *ngIf="animationId && animationPaths[path.id]" (click)="detachPath($event, path)">remove_circle</mat-icon>
+          </span>
+          <path-settings [pathRef]="pathRef" [pathId]="path.id"></path-settings>
+        </div>
+      </div>
+      <div class="actions">
+        <button mat-button color="primary" (click)="add(buttonRef)" #buttonRef>Add</button>
+      </div>
+    </ui-container>
+  </ng-container>
+</ng-container>

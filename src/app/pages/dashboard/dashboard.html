@@ -1,7 +1,7 @@
 <ng-container *ngIf="collection$ | async as collection">
   <div class="drawings-container">
     <div class="drawing" *ngFor="let item of collection" [routerLink]="['/draw', item.id]">
-      <drwn-preview [path]="item.path" [drawing]="item"></drwn-preview>
+      <drwn-preview [drawingId]="item.id" [drawing]="item"></drwn-preview>
     </div>
   </div>
 </ng-container>

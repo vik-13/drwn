@@ -2,17 +2,17 @@
   position: absolute;
   top: 5px;
   right: 5px;
-  width: 220px;
+  width: 260px;
 
   max-height: calc(100vh - 100px);;
 }
 
-.layouts-list {
+.list {
   flex: 1;
   overflow: auto;
   scroll-behavior: smooth;
 
-  .layout {
+  .item {
     display: flex;
     height: 40px;
     line-height: 40px;
@@ -27,14 +27,48 @@
       padding: 0 8px;
     }
 
+    .info {
+      font-size: 10px;
+      flex-shrink: 0;
+      padding: 0 4px;
+    }
+
+    .attach-icon-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 4px;
+      cursor: pointer;
+
+      &.disabled {
+        opacity: 0.25;
+        pointer-events: none;
+        cursor: default;
+      }
+    }
+
+    &.inherited {
+
+    }
+
     &.active,
     &:hover {
       background-color: #ececec;
     }
   }
+
+  &.animation {
+    .item {
+      opacity: .35;
+
+      &.inherited {
+        opacity: 1;
+      }
+    }
+  }
 }
 
-.layouts-actions {
+.actions {
   height: 44px;
   display: flex;
   align-items: center;

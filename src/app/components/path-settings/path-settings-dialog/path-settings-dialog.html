@@ -1,0 +1,36 @@
+<div class="settings-container" *ngIf="path$ | async as path">
+  <mat-form-field>
+    <input matInput
+           name="name"
+           #field
+           [value]="path.name"
+           (change)="changeName($event)"
+           placeholder="Path name" />
+  </mat-form-field>
+  <div class="color-selector-container">
+    <div class="title">Stroke style:</div>
+    <div class="color"
+         #strokeField
+         (click)="changeStrokeColor(strokeField, path.stroke)"
+         [style.backgroundColor]="path.stroke"
+         [class.transparent]="path.stroke === 'transparent'"
+         [class.stroke-default]="!path.stroke"></div>
+  </div>
+  <div class="color-selector-container" [class.inactive]="!path.z">
+    <div class="title">Fill style:</div>
+    <div class="color"
+         #fillField
+         (click)="changeFillColor(fillField, path.fill)"
+         [style.backgroundColor]="path.fill"
+         [class.transparent]="path.fill === 'transparent'"
+         [class.fill-default]="!path.fill"></div>
+  </div>
+  <div class="container">
+    <mat-checkbox [checked]="path.z" (change)="changeClose($event)">Is Closed</mat-checkbox>
+  </div>
+  <div class="container remove-container">
+    <button mat-icon-button (click)="remove()" color="warn" #removeButton>
+      <mat-icon>delete</mat-icon>
+    </button>
+  </div>
+</div>

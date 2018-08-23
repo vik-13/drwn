@@ -1,5 +1,7 @@
 @import "~src/assets/styles/checkered";
 
+$opacity: .3;
+
 .drwn-area {
   @include checkeredBackground();
 
@@ -7,8 +9,9 @@
   user-select: none;
   box-shadow: 0 0 8px #eaeaea;
 
-  g.animation-layout {
-    opacity: .2;
+  .original-container,
+  .animation {
+    opacity: $opacity;
     pointer-events: none;
 
     &.active {
@@ -17,12 +20,13 @@
     }
   }
 
-  g.layout {
-    opacity: .25;
+  .original-path,
+  .path {
+    // opacity: $opacity;
     pointer-events: none;
 
     &.active {
-      opacity: 1;
+      // opacity: 1;
       pointer-events: auto;
 
       line:hover {
@@ -40,7 +44,8 @@
   }
 
   &.demo-view {
-    g.layout {
+    .original-path,
+    .path {
       opacity: 1;
     }
   }

@@ -7,12 +7,12 @@ import { RemoveConfirmationService } from '../../../ui-components/remove-confirm
 import { ColorPickerService } from '../../color-picker/color-picker.service';
 
 @Component({
-  selector: 'layout-settings-dialog',
-  templateUrl: 'layout-settings-dialog.html',
-  styleUrls: ['layout-settings-dialog.scss'],
+  selector: 'path-settings-dialog',
+  templateUrl: 'path-settings-dialog.html',
+  styleUrls: ['path-settings-dialog.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class LayoutSettingsDialogComponent {
+export class PathSettingsDialogComponent {
   @ViewChild('removeButton') removeButtonRef;
   @ViewChild('field')
   set field(value) {
@@ -23,14 +23,14 @@ export class LayoutSettingsDialogComponent {
     }
   }
 
-  layout$;
+  path$;
 
   constructor(private store: AngularFirestore,
               private viewRef: ViewRef,
               private colorPicker: ColorPickerService,
               private removeConfirmation: RemoveConfirmationService,
               @Inject(VIEW_DATA) private viewData) {
-    this.layout$ = this.store.doc(viewData.path).snapshotChanges()
+    this.path$ = this.store.doc(viewData.pathRef).snapshotChanges()
       .pipe(map((data) => {
         return {id: data.payload.id, ...data.payload.data()};
       }));
@@ -38,18 +38,18 @@ export class LayoutSettingsDialogComponent {
 
   changeName(event) {
     if (event.target.value) {
-      this.store.doc(this.viewData.path).update({name: event.target.value}).then();
+      this.store.doc(this.viewData.pathRef).update({name: event.target.value}).then();
     }
   }
 
   changeClose(event) {
-    this.store.doc(this.viewData.path).update({closed: event.checked}).then();
+    this.store.doc(this.viewData.pathRef).update({z: event.checked}).then();
   }
 
   changeStrokeColor(elementRef, current = null) {
     this.colorPicker.open(elementRef, current).after().subscribe((color) => {
       if (color) {
-        this.store.doc(this.viewData.path).update({strokeColor: color}).then();
+        this.store.doc(this.viewData.pathRef).update({stroke: color}).then();
       }
     });
   }
@@ -57,7 +57,7 @@ export class LayoutSettingsDialogComponent {
   changeFillColor(elementRef, current = null) {
     this.colorPicker.open(elementRef, current).after().subscribe((color) => {
       if (color) {
-        this.store.doc(this.viewData.path).update({fillColor: color}).then();
+        this.store.doc(this.viewData.pathRef).update({fill: color}).then();
       }
     });
   }
@@ -66,7 +66,7 @@ export class LayoutSettingsDialogComponent {
     this.removeConfirmation.open(this.removeButtonRef._elementRef, 'You are going to remove it forever. Are you sure?')
       .after().subscribe((confirmation) => {
         if (confirmation) {
-          this.store.doc(this.viewData.path).delete().then(() => {
+          this.store.doc(this.viewData.pathRef).delete().then(() => {
             this.viewRef.close();
           });
         }
