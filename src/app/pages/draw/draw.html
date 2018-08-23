@@ -10,7 +10,7 @@
            (mouseup)="mouseUp($event)">
         <g class="original-container" [class.active]="!animationId">
           <ng-container *ngFor="let path of paths">
-            <g class="original-path" [class.active]="!animationId && pathId === path.id">
+            <g class="original-path" [class.active]="!animationId && pathId === path.id" (mousedown)="clickOnPath($event, path)">
               <ng-container *ngIf="path.z && path.fill && path._path">
                 <path [attr.d]="path._path" [attr.fill]="path.fill"></path>
               </ng-container>

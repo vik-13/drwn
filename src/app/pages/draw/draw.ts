@@ -195,14 +195,28 @@ export class DrawComponent {
     event.stopPropagation();
   }
 
+  clickOnPath(event, path) {
+    if (event.button) {
+      this.action.type = ActionType.MOVE_ALL;
+      this.action.start = {x: this.mouse.x, y: this.mouse.y};
+      this.action.last = {x: this.mouse.x, y: this.mouse.y};
+      this.action.data = path.coords;
+
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  }
+
   mouseDown(event) {
     this.mouse.x = event.offsetX;
     this.mouse.y = event.offsetY;
-    if (!this.animationId && !event.button) {
-      this.addPoint(
-        this.mouse.x,
-        this.mouse.y
-      ).then();
+    if (this.pathId) {
+      if (!this.animationId && !event.button) {
+        this.addPoint(
+          this.mouse.x,
+          this.mouse.y
+        ).then();
+      }
     }
     this.action.last = {x: this.mouse.x, y: this.mouse.y};
   }
@@ -219,6 +233,8 @@ export class DrawComponent {
 
     if (this.action.type === ActionType.MOVE_POINT) {
       this.updatePoint(this.action.data.coords, this.action.data.index, this.mouse.x, this.mouse.y).then();
+    } else if (this.action.type === ActionType.MOVE_ALL) {
+      this.updatePoints(this.action.data, this.mouse.x - this.action.start.x, this.mouse.y - this.action.start.y).then();
     }
     this.action.last = {x: this.mouse.x, y: this.mouse.y};
   }
@@ -246,6 +262,24 @@ export class DrawComponent {
   updatePoint(coords: any[], index, x, y) {
     coords[index].x = x;
     coords[index].y = y;
+    if (this.animationId) {
+      return this.store.doc(`${this.animationsRef}/${this.animationId}/paths/${this.pathId}`).update({
+        coords: coords
+      });
+    } else {
+      return this.store.doc(`${this.pathsRef}/${this.pathId}`).update({
+        coords: coords
+      });
+    }
+  }
+
+  updatePoints(coords: any[], shiftX, shiftY) {
+    coords = coords.map((coord) => {
+      return {
+        x: coord.x + shiftX,
+        y: coord.y + shiftY
+      };
+    });
     if (this.animationId) {
       return this.store.doc(`${this.animationsRef}/${this.animationId}/paths/${this.pathId}`).update({
         coords: coords
