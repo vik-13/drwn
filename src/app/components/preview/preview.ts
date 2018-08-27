@@ -111,7 +111,17 @@ export class PreviewComponent {
               });
 
               const preparedPaths = paths.map((path) => {
-                return animationPathsObject[path.id] ? animationPathsObject[path.id] : path;
+                let next;
+                if (animationPathsObject[path.id]) {
+                  const copied = {...animationPathsObject[path.id]};
+                  copied.fill = path.fill;
+                  copied.stroke = path.stroke;
+                  copied.z = path.z;
+                  next = copied;
+                } else {
+                  next = path;
+                }
+                return next;
               });
 
               sprites.push(preparedPaths);
@@ -121,7 +131,7 @@ export class PreviewComponent {
           }));
       }))
       .pipe(switchMap((sprites: any[]) => {
-        return interval(100)
+        return interval(200)
           .pipe(map((i) => {
             return sprites[i % sprites.length];
           }));

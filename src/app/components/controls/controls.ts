@@ -31,7 +31,7 @@ export class ControlsComponent implements OnInit {
     this.changeControl.emit(this.selected);
   }
 
-  toggleView() {
+  toggleView(event) {
     this.expanded = !this.expanded;
   }
 }

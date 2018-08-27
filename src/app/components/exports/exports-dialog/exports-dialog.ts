@@ -3,7 +3,7 @@ import { first, map, switchMap, tap } from 'rxjs/operators';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { AngularFireAuth } from 'angularfire2/auth';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
 
 @Component({
   selector: 'drwn-exports-dialog',
@@ -21,6 +21,10 @@ export class ExportsDialogComponent {
 
   mainSource = '';
   animationsSource = '';
+  size: {x: number, y: number} = {
+    x: 0,
+    y: 0
+  };
 
   constructor(private store: AngularFirestore,
               private auth: AngularFireAuth,
@@ -68,15 +72,34 @@ export class ExportsDialogComponent {
               .pipe(first())
           );
         });
-        return forkJoin(...paths);
+        return paths.length ? forkJoin(...paths) : of([]);
       }))
       .pipe(first());
 
     this.all$ = forkJoin(this.paths$, this.animations$)
       .subscribe(([paths, animations]: [any[], any[]]) => {
+        const min = {
+          x: 10000,
+          y: 10000
+        };
+        const max = {
+          x: 0,
+          y: 0
+        };
+
+        paths.forEach((path) => {
+          path.coords.forEach((coord) => {
+            min.x = coord.x < min.x ? coord.x : min.x;
+            min.y = coord.y < min.y ? coord.y : min.y;
+
+            max.x = coord.x > max.x ? coord.x : max.x;
+            max.y = coord.y > max.y ? coord.y : max.y;
+          });
+        });
+
         const simplifiedMainData = paths.map((path) => {
           return [
-            [...[].concat(...path.coords.map(coord => [Math.floor(coord.x / 10), Math.floor(coord.y / 10)]))],
+            [...[].concat(...path.coords.map(coord => [coord.x - min.x, coord.y - min.y]))],
             path.stroke === 'transparent' ? '' : path.stroke,
             path.fill === 'transparent' ? '' : path.fill,
             path.z ? 1 : 0
@@ -88,12 +111,15 @@ export class ExportsDialogComponent {
           return paths.map((path) => {
             const inherited = animationPaths.filter((animationPath) => animationPath.id === path.id)[0];
             return !inherited ? 0 : [
-              ...[].concat(...inherited.coords.map(coord => [Math.floor(coord.x / 10), Math.floor(coord.y / 10)]))
+              ...[].concat(...inherited.coords.map(coord => [coord.x - min.x, coord.y - min.y]))
             ];
           });
         });
 
         this.animationsSource = JSON.stringify(simplifiedAnimationsData);
+
+        this.size.x = max.x - min.x;
+        this.size.y = max.y - min.y;
 
         this.changeDetection.markForCheck();
       });

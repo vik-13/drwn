@@ -14,7 +14,7 @@ export class ExportsComponent {
 
   constructor(private dialog: MatDialog) {}
 
-  doExport() {
+  doExport(event) {
     this.dialog.open(ExportsDialogComponent, {
       data: {
         drawingId: this.drawingId

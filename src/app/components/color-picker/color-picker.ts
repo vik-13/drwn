@@ -27,4 +27,8 @@ export class ColorPickerComponent {
   changeColor(color) {
     this.viewRef.close(color);
   }
+
+  changeColorByText(elementRef) {
+    this.viewRef.close(elementRef.value);
+  }
 }

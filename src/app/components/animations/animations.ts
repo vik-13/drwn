@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { map, switchMap } from 'rxjs/operators';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { AngularFireAuth } from 'angularfire2/auth';
@@ -15,7 +15,6 @@ export class AnimationsComponent implements OnInit {
 
   @Output() change: EventEmitter<string> = new EventEmitter<string>();
 
-  index = -1;
   id = null;
 
   animations$;
@@ -24,6 +23,7 @@ export class AnimationsComponent implements OnInit {
   constructor(private store: AngularFirestore,
               private auth: AngularFireAuth,
               private route: ActivatedRoute,
+              private changeDetection: ChangeDetectorRef,
               private removeConfirmation: RemoveConfirmationService) {
     this.animations$ = auth.user
       .pipe(switchMap((user) => {
@@ -48,8 +48,7 @@ export class AnimationsComponent implements OnInit {
     this.change.emit(this.id);
   }
 
-  toggle(index, id) {
-    this.index = index;
+  toggle(id) {
     this.id = id;
     this.change.emit(this.id);
   }
@@ -64,7 +63,11 @@ export class AnimationsComponent implements OnInit {
     this.removeConfirmation.open(closeLink, 'You are going to remove it forever. Are you sure?')
       .after().subscribe((confirmation) => {
       if (confirmation) {
-        this.store.doc(`${this.animationsPath}/${id}`).delete().then();
+        this.store.doc(`${this.animationsPath}/${id}`).delete().then(() => {
+          this.id = null;
+          this.change.emit(this.id);
+          this.changeDetection.markForCheck();
+        });
       }
     });
 
