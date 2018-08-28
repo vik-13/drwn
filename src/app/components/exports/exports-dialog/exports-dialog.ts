@@ -99,7 +99,7 @@ export class ExportsDialogComponent {
 
         const simplifiedMainData = paths.map((path) => {
           return [
-            [...[].concat(...path.coords.map(coord => [coord.x - min.x, coord.y - min.y]))],
+            [...[].concat(...path.coords.map(coord => [Math.round((coord.x - min.x) / 5), Math.round((coord.y - min.y) / 5)]))],
             path.stroke === 'transparent' ? '' : path.stroke,
             path.fill === 'transparent' ? '' : path.fill,
             path.z ? 1 : 0
@@ -111,7 +111,7 @@ export class ExportsDialogComponent {
           return paths.map((path) => {
             const inherited = animationPaths.filter((animationPath) => animationPath.id === path.id)[0];
             return !inherited ? 0 : [
-              ...[].concat(...inherited.coords.map(coord => [coord.x - min.x, coord.y - min.y]))
+              ...[].concat(...inherited.coords.map(coord => [Math.round((coord.x - min.x) / 5), Math.round((coord.y - min.y) / 5)]))
             ];
           });
         });

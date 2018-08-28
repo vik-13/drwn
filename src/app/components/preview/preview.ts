@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { first, map, switchMap, tap } from 'rxjs/operators';
 import { AngularFireAuth } from 'angularfire2/auth';
-import { BehaviorSubject, forkJoin, interval } from 'rxjs';
+import { BehaviorSubject, forkJoin, interval, of } from 'rxjs';
 
 @Component({
   selector: 'drwn-preview',
@@ -83,7 +83,7 @@ export class PreviewComponent {
               .pipe(first())
           );
         });
-        return forkJoin(...paths);
+        return animations.length ? forkJoin(...paths) : of([]);
       }));
 
     this.all$ = this.paths$

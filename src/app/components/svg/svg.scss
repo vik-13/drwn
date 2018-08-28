@@ -9,9 +9,18 @@ $opacity: .3;
   user-select: none;
   box-shadow: 0 0 8px #eaeaea;
 
-  .original-container,
-  .animation {
+  .original-container {
     opacity: $opacity;
+    pointer-events: none;
+
+    &.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+
+  .animation {
+    opacity: 0;
     pointer-events: none;
 
     &.active {
@@ -22,11 +31,11 @@ $opacity: .3;
 
   .original-path,
   .path {
-    // opacity: $opacity;
+    opacity: $opacity;
     pointer-events: none;
 
     &.active {
-      // opacity: 1;
+      opacity: 1;
       pointer-events: auto;
 
       line:hover {
