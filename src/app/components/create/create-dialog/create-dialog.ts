@@ -35,8 +35,18 @@ export class CreateDialogComponent {
         width: form.value.size === 'custom' ? form.value.width : form.value.size.width,
         height: form.value.size === 'custom' ? form.value.height : form.value.size.height,
       }).then((data) => {
-        this.dialogRef.close();
-        this.router.navigate(['draw', data.id]).then();
+        this.store.collection(`users/${this.userId}/drawings/${data.id}/paths`).add({
+          name: 'Untitled',
+          created: +new Date(),
+          visibility: true,
+          z: true,
+          stroke: '#000000',
+          fill: 'transparent',
+          coords: []
+        }).then(() => {
+          this.dialogRef.close();
+          this.router.navigate(['draw', data.id]).then();
+        });
       });
     }
   }

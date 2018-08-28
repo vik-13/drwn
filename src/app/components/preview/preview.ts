@@ -70,8 +70,9 @@ export class PreviewComponent {
           }));
       }))
       .pipe(switchMap((animations: any[]) => {
+        const filtered = animations.filter(item => item.visibility);
         const paths = [];
-        animations.forEach((animation) => {
+        filtered.forEach((animation) => {
           paths.push(
             store.collection(`${this.animationsRef}/${animation.id}/paths`)
               .snapshotChanges()
@@ -83,7 +84,7 @@ export class PreviewComponent {
               .pipe(first())
           );
         });
-        return animations.length ? forkJoin(...paths) : of([]);
+        return filtered.length ? forkJoin(...paths) : of([]);
       }));
 
     this.all$ = this.paths$

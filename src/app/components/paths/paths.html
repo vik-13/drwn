@@ -16,7 +16,7 @@
           <path-settings [pathRef]="pathRef" [pathId]="path.id"></path-settings>
         </div>
       </div>
-      <div class="actions">
+      <div class="actions" *ngIf="!animationId">
         <button mat-button color="primary" (click)="add(buttonRef)" #buttonRef>Add</button>
       </div>
     </ui-container>

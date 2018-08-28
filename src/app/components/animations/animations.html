@@ -1,21 +1,24 @@
 <ng-container *ngIf="animations$ | async as animations">
-  <div class="container">
-    <div class="title">Animations</div>
-    <div class="content">
-      <div class="list">
-        <div class="item first" (click)="toggle(null)" [class.active]="!id">
-          Original
-        </div>
-        <div class="item" *ngFor="let animation of animations; let i = index" [class.active]="id === animation.id">
-          <span class="flex" (click)="toggle(animation.id)">+{{i + 1}}</span>
-          <span class="close-link"
-                #closeLink
-                (click)="remove($event, closeLink, animation.id)">X</span>
-        </div>
-        <div class="add-new" (click)="add($event)">
-          +
-        </div>
+  <ui-container name="Animations">
+    <div class="list">
+      <div class="item original" [class.active]="!id">
+        <span class="name" (click)="toggle(null)">Original</span>
+      </div>
+      <div class="item" *ngFor="let animation of animations; let i = index"
+           [class.active]="id === animation.id">
+        <mat-checkbox name="visibility"
+                      [checked]="animation.visibility"
+                      (change)="toggleVisibility($event, animation.id, animation.visibility)"></mat-checkbox>
+        <span class="name" (click)="toggle(animation.id)">{{i + 1}}</span>
+        <span class="attach-icon-container" #closeLink>
+          <button mat-icon-button (click)="remove($event, closeLink, animation.id)" color="warn">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </span>
       </div>
     </div>
-  </div>
+    <div class="actions">
+      <button mat-button color="primary" (click)="add($event)">Add</button>
+    </div>
+  </ui-container>
 </ng-container>

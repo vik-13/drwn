@@ -47,13 +47,12 @@
       }
     }
 
-    &.inherited {
-
+    &:hover {
+      background-color: #efefef;
     }
 
-    &.active,
-    &:hover {
-      background-color: #ececec;
+    &.active {
+      background-color: #cccccc;
     }
   }
 

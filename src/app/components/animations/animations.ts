@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { map, switchMap } from 'rxjs/operators';
+import { filter, map, switchMap } from 'rxjs/operators';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { AngularFireAuth } from 'angularfire2/auth';
 import { ActivatedRoute } from '@angular/router';
@@ -53,10 +53,19 @@ export class AnimationsComponent implements OnInit {
     this.change.emit(this.id);
   }
 
+  toggleVisibility(event, id, visibility) {
+    this.store.doc(`${this.animationsPath}/${id}`).update({
+      visibility: !visibility
+    }).then();
+  }
+
   add(event) {
     this.store.collection(this.animationsPath).add({
-      created: +new Date()
-    }).then();
+      created: +new Date(),
+      visibility: true
+    }).then((data) => {
+      this.toggle(data.id);
+    });
   }
 
   remove(event, closeLink, id) {

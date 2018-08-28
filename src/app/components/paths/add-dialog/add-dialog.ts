@@ -31,8 +31,8 @@ export class AddDialogComponent {
         stroke: '#000000',
         fill: 'transparent',
         coords: []
-      }).then(() => {
-        this.viewRef.close();
+      }).then((data) => {
+        this.viewRef.close(data);
       });
     }
   }

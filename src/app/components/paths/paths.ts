@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, HostBinding, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostBinding, Input, Output } from '@angular/core';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { map, switchMap, tap } from 'rxjs/operators';
 import { AngularFireAuth } from 'angularfire2/auth';
@@ -35,6 +35,7 @@ export class PathsComponent {
   @Output() changeLayout: EventEmitter<string> = new EventEmitter();
 
   constructor(private store: AngularFirestore,
+              private changeDetection: ChangeDetectorRef,
               private viewService: ViewService,
               private auth: AngularFireAuth,
               route: ActivatedRoute) {
@@ -54,6 +55,20 @@ export class PathsComponent {
               return {id: item.payload.doc.id, ...item.payload.doc.data()};
             });
           }));
+      }))
+      .pipe(tap((list) => {
+        if (!this.pathId && list.length) {
+          this.pathId = list[0].id;
+          this.changeLayout.emit(this.pathId);
+        } else if (this.pathId && list.length) {
+          if (!list.filter((item) => item.id === this.pathId)[0]) {
+            this.pathId = list[0].id;
+            this.changeLayout.emit(this.pathId);
+          }
+        } else {
+          this.pathId = null;
+          this.changeLayout.emit(this.pathId);
+        }
       }));
 
     this.animationPaths$ = auth.user
@@ -110,12 +125,19 @@ export class PathsComponent {
 
   toggleActive(id, inherited) {
     if (!this.animationId || this.animationId && inherited) {
-      this.pathId = (this.pathId !== id) ? id : null;
+      this.pathId = id;
       this.changeLayout.emit(this.pathId);
     }
   }
 
   add(buttonRef) {
-    this.viewService.open(AddDialogComponent, buttonRef._elementRef, {pathRef: this.pathRef});
+    this.viewService.open(AddDialogComponent, buttonRef._elementRef, {pathRef: this.pathRef})
+      .after()
+      .subscribe((data) => {
+        if (data && data.id) {
+          this.pathId = data.id;
+          this.changeLayout.emit(this.pathId);
+        }
+      });
   }
 }

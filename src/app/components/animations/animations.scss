@@ -1,74 +1,65 @@
 :host {
   position: absolute;
-  bottom: 5px;
+  width: 150px;
+  top: 5px;
   left: 5px;
-  right: 5px;
   background-color: white;
   box-shadow: 0 0 8px #eaeaea;
 }
 
-.container {
-  display: flex;
-  height: 40px;
-  width: 100%;
+.list {
+  flex: 1;
+  overflow: auto;
+  scroll-behavior: smooth;
 
-  .title {
-    background-color: #3f51b5;
-    padding: 0 8px;
-    user-select: none;
-    color: #ffffff;
-    line-height: 40px;
-  }
-
-  .content {
+  .item {
     display: flex;
-    overflow: auto;
+    height: 40px;
+    line-height: 40px;
+    padding: 0 8px;
+    border-bottom: 1px solid #eaeaea;
+    cursor: default;
+    user-select: none;
 
-    .list {
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
+    .name {
+      display: block;
+      width: 100%;
+      padding: 0 8px;
+    }
+
+    .info {
+      font-size: 10px;
+      flex-shrink: 0;
       padding: 0 4px;
+    }
 
-      .item {
-        display: flex;
-        height: 35px;
-        line-height: 35px;
-        margin: 0 4px;
-        padding: 0 4px;
-        width: 75px;
-        border: 1px solid #3f51b5;
-        user-select: none;
-        cursor: pointer;
+    .attach-icon-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 4px;
+      cursor: pointer;
 
-        .flex {
-          flex: 1;
-        }
-
-        .close-link {
-          padding: 0 2px;
-        }
-
-        &.active {
-          color: #ffffff;
-          background-color: #3f51b5;
-        }
-      }
-
-      .add-new {
-        height: 35px;
-        line-height: 35px;
-        width: 75px;
-        text-align: center;
-        font-size: 30px;
-        border: 1px solid transparent;
-        user-select: none;
-        cursor: pointer;
-
-        &:hover {
-          border: 1px solid #3f51b5;
-        }
+      &.disabled {
+        opacity: 0.25;
+        pointer-events: none;
+        cursor: default;
       }
     }
+
+    &:hover {
+      background-color: #efefef;
+    }
+
+    &.active {
+      background-color: #cccccc;
+    }
   }
+}
+
+.actions {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
