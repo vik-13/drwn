@@ -1,5 +1,11 @@
 <h2 mat-dialog-title>Export drawing</h2>
 <mat-dialog-content>
+  <mat-form-field>
+    <input matInput
+           placeholder="Scale Ratio"
+           [value]="scaleRatio"
+           (change)="changeScaleRatio($event)">
+  </mat-form-field>
 
   <h3>Main ({{mainSource.length}} chars, size: ({{size.x}}, {{size.y}})):</h3>
   <p>

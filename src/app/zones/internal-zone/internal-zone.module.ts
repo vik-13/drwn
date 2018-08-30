@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule, MatIconModule, MatToolbarModule } from '@angular/material';
 import { UserModule } from '../../components/user/user.module';
 import { CreateModule } from '../../components/create/create.module';
+import { PaletteModule } from '../../components/palette/palette.module';
 
 @NgModule({
   declarations: [
@@ -20,6 +21,7 @@ import { CreateModule } from '../../components/create/create.module';
     MatButtonModule,
 
     CreateModule,
+    PaletteModule,
 
     UserModule
   ],

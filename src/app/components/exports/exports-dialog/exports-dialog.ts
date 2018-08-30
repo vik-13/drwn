@@ -3,7 +3,7 @@ import { first, map, switchMap, tap } from 'rxjs/operators';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { AngularFireAuth } from 'angularfire2/auth';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
-import { forkJoin, of } from 'rxjs';
+import { BehaviorSubject, forkJoin, of } from 'rxjs';
 
 @Component({
   selector: 'drwn-exports-dialog',
@@ -25,6 +25,9 @@ export class ExportsDialogComponent {
     x: 0,
     y: 0
   };
+
+  scaleRatio = 1.0;
+  scaleRatio$: BehaviorSubject<number> = new BehaviorSubject(this.scaleRatio);
 
   constructor(private store: AngularFirestore,
               private auth: AngularFireAuth,
@@ -77,7 +80,11 @@ export class ExportsDialogComponent {
       .pipe(first());
 
     this.all$ = forkJoin(this.paths$, this.animations$)
-      .subscribe(([paths, animations]: [any[], any[]]) => {
+      .pipe(switchMap(([paths, animations]: [any[], any[]]) => {
+        return this.scaleRatio$
+          .pipe(map((ratio) => [paths, animations, ratio]));
+      }))
+      .subscribe(([paths, animations, ratio]: [any[], any[], number]) => {
         const min = {
           x: 10000,
           y: 10000
@@ -99,7 +106,7 @@ export class ExportsDialogComponent {
 
         const simplifiedMainData = paths.map((path) => {
           return [
-            [...[].concat(...path.coords.map(coord => [Math.round((coord.x - min.x) / 5), Math.round((coord.y - min.y) / 5)]))],
+            [...[].concat(...path.coords.map(coord => [Math.round((coord.x - min.x) * ratio), Math.round((coord.y - min.y) * ratio)]))],
             path.stroke === 'transparent' ? '' : path.stroke,
             path.fill === 'transparent' ? '' : path.fill,
             path.z ? 1 : 0
@@ -111,17 +118,22 @@ export class ExportsDialogComponent {
           return paths.map((path) => {
             const inherited = animationPaths.filter((animationPath) => animationPath.id === path.id)[0];
             return !inherited ? 0 : [
-              ...[].concat(...inherited.coords.map(coord => [Math.round((coord.x - min.x) / 5), Math.round((coord.y - min.y) / 5)]))
+              ...[].concat(...inherited.coords.map(coord => [Math.round((coord.x - min.x) * ratio), Math.round((coord.y - min.y) * ratio)]))
             ];
           });
         });
 
         this.animationsSource = JSON.stringify(simplifiedAnimationsData);
 
-        this.size.x = max.x - min.x;
-        this.size.y = max.y - min.y;
+        this.size.x = Math.round((max.x - min.x) * ratio);
+        this.size.y = Math.round((max.y - min.y) * ratio);
 
         this.changeDetection.markForCheck();
       });
+  }
+
+  changeScaleRatio(event) {
+    const value = parseFloat(event.target.value) || 1;
+    this.scaleRatio$.next(value);
   }
 }

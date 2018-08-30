@@ -1,0 +1,19 @@
+<div class="palette-container" *ngIf="colors$ | async as colors">
+  <div class="add-color-container">
+    <mat-form-field>
+      <input matInput (keydown.enter)="add($event, colors)" placeholder="Add color">
+    </mat-form-field>
+  </div>
+  <div class="colors-container">
+    <div class="color"
+         *ngFor="let color of colors"
+         title="{{color.text}}"
+         [class.transparent]="color.text === 'transparent'"
+         [style.backgroundColor]="color.text">
+      <div class="info">
+        <span class="text">{{color.text}}</span>
+        <button mat-icon-button color="warn" (click)="remove($event, color.id)"><mat-icon>delete</mat-icon></button>
+      </div>
+    </div>
+  </div>
+</div>

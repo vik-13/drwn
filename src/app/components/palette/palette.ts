@@ -1,8 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { AngularFirestore } from 'angularfire2/firestore';
-import { AngularFireAuth } from 'angularfire2/auth';
 import { MatDialog } from '@angular/material';
-import { switchMap } from 'rxjs/operators';
+import { PaletteDialogComponent } from './palette-dialog/palette-dialog';
 
 @Component({
   selector: 'drwn-palette',
@@ -11,13 +9,9 @@ import { switchMap } from 'rxjs/operators';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PaletteComponent {
-  colors$;
+  constructor(private dialog: MatDialog) {}
 
-  constructor(private store: AngularFirestore,
-              private auth: AngularFireAuth, private dialog: MatDialog) {
-    this.colors$ = auth.user
-      .pipe(switchMap((user) => {
-        return store.collection(`users/${user.uid}/colors`, ref => ref.orderBy('created')).valueChanges();
-      }));
+  open() {
+    this.dialog.open(PaletteDialogComponent);
   }
 }

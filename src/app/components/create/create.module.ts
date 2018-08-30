@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CreateComponent } from './create';
 import { CommonModule } from '@angular/common';
-import { MatButtonModule, MatButtonToggleModule, MatDialogModule, MatInputModule } from '@angular/material';
+import { MatButtonModule, MatButtonToggleModule, MatDialogModule, MatIconModule, MatInputModule } from '@angular/material';
 import { CreateDialogComponent } from './create-dialog/create-dialog';
 import { FormsModule } from '@angular/forms';
 
@@ -17,7 +17,8 @@ import { FormsModule } from '@angular/forms';
     MatButtonModule,
     MatButtonToggleModule,
     MatDialogModule,
-    MatInputModule
+    MatInputModule,
+    MatIconModule
   ],
   exports: [
     CreateComponent,

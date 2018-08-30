@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { ExportsComponent } from './exports';
 import { CommonModule } from '@angular/common';
-import { MatButtonModule, MatDialogModule } from '@angular/material';
+import { MatButtonModule, MatDialogModule, MatFormFieldModule, MatInputModule } from '@angular/material';
 import { ExportsDialogComponent } from './exports-dialog/exports-dialog';
 
 @NgModule({
@@ -12,7 +12,9 @@ import { ExportsDialogComponent } from './exports-dialog/exports-dialog';
   imports: [
     CommonModule,
     MatButtonModule,
-    MatDialogModule
+    MatDialogModule,
+    MatInputModule,
+    MatFormFieldModule
   ],
   exports: [
     ExportsComponent,

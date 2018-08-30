@@ -4,12 +4,24 @@
   @include checkeredBackground();
 }
 
-.info-container {
-  display: flex;
-  align-items: center;
-  padding: 2px 5px;
+.preview-container {
+  .info-container {
+    display: flex;
+    align-items: center;
+    padding: 2px 5px;
 
-  .name {
-    flex: 1;
+    .name {
+      flex: 1;
+    }
+
+    button {
+      visibility: hidden;
+    }
+  }
+
+  &:hover {
+    .info-container button {
+      visibility: visible;
+    }
   }
 }
