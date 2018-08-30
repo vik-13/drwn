@@ -82,10 +82,10 @@ export class DrawComponent {
           }))
           .pipe(map((paths: any[]) => {
             return paths.filter(path => path.visibility).map((path) => {
-              const pathString = path.coords.reduce((accu, dot, index) => {
-                accu += (!index ? `M${dot.x} ${dot.y} ` : `L${dot.x} ${dot.y} `);
-                return accu;
-              }, '');
+              const pathText = path.coords.length > 1 ? path.coords.reduce((pathStr, dot, index) => {
+                pathStr += (!index ? `M${dot.x} ${dot.y}` : ` L${dot.x} ${dot.y}`);
+                return pathStr;
+              }, '') : '';
 
               return {
                 ...path,
@@ -100,7 +100,7 @@ export class DrawComponent {
                     last
                   };
                 }).filter(line => !(!path.z && line.last)),
-                _path: path.z && pathString ? `${pathString}Z` : pathString
+                _path: `${pathText}${pathText && path.z ? ' Z' : ''}`
               };
             });
           }));

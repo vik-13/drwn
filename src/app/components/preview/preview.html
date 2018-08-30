@@ -1,8 +1,8 @@
-<div class="preview-container" *ngIf="all$ | async as all">
+<div class="preview-container" *ngIf="all$ | async as all" [ngClass]="size">
   <div class="preview">
     <svg [attr.viewBox]="'0 0 ' + drawing.width + ' ' + drawing.height"
-         [attr.width]="200"
-         [attr.height]="150"
+         [attr.width]="size === 'normal' ? 200 : 167"
+         [attr.height]="size === 'normal' ? 150 : 127"
          preserveAspectRatio
          oncontextmenu="return false;">
       <ng-container *ngFor="let path of all">
@@ -17,7 +17,9 @@
       </ng-container>
     </svg>
   </div>
-  <div class="description">
-    <span>{{drawing.name}}</span>
+  <div class="info-container" *ngIf="controls">
+    <span class="name">{{drawing.name}}</span>
+    <button mat-icon-button (click)="copy($event, drawing)"><mat-icon>file_copy</mat-icon></button>
+    <button mat-icon-button color="warn" (click)="remove($event, drawing)"><mat-icon>delete</mat-icon></button>
   </div>
 </div>

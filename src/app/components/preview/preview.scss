@@ -3,3 +3,13 @@
 .preview {
   @include checkeredBackground();
 }
+
+.info-container {
+  display: flex;
+  align-items: center;
+  padding: 2px 5px;
+
+  .name {
+    flex: 1;
+  }
+}

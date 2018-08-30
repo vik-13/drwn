@@ -7,21 +7,21 @@
           <input matInput name="name" [ngModel] required placeholder="Name"/>
         </mat-form-field>
       </div>
-      <div>
-        <mat-button-toggle-group name="size" [ngModel]="defaultSize">
-          <mat-button-toggle [value]="size" *ngFor="let size of sizes">{{size.width + 'x' + size.height}}</mat-button-toggle>
-          <mat-button-toggle value="custom">Custom</mat-button-toggle>
-        </mat-button-toggle-group>
-      </div>
-      <div class="custom-size-container" *ngIf="form.value.size === 'custom'">
-        <mat-form-field>
-          <input matInput type="number" name="width" [ngModel]="defaultSize.width" required placeholder="Width"/>
-        </mat-form-field>
+      <!--<div>-->
+        <!--<mat-button-toggle-group name="size" [ngModel]="defaultSize">-->
+          <!--<mat-button-toggle [value]="size" *ngFor="let size of sizes">{{size.width + 'x' + size.height}}</mat-button-toggle>-->
+          <!--<mat-button-toggle value="custom">Custom</mat-button-toggle>-->
+        <!--</mat-button-toggle-group>-->
+      <!--</div>-->
+      <!--<div class="custom-size-container" *ngIf="form.value.size === 'custom'">-->
+        <!--<mat-form-field>-->
+          <!--<input matInput type="number" name="width" [ngModel]="defaultSize.width" required placeholder="Width"/>-->
+        <!--</mat-form-field>-->
 
-        <mat-form-field>
-          <input matInput type="number" name="height" [ngModel]="defaultSize.height" required placeholder="Height"/>
-        </mat-form-field>
-      </div>
+        <!--<mat-form-field>-->
+          <!--<input matInput type="number" name="height" [ngModel]="defaultSize.height" required placeholder="Height"/>-->
+        <!--</mat-form-field>-->
+      <!--</div>-->
     </div>
   </mat-dialog-content>
   <mat-dialog-actions>

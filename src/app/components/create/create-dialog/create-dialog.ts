@@ -32,8 +32,10 @@ export class CreateDialogComponent {
       this.store.collection(`users/${this.userId}/drawings`).add({
         name: form.value.name,
         created: +new Date(),
-        width: form.value.size === 'custom' ? form.value.width : form.value.size.width,
-        height: form.value.size === 'custom' ? form.value.height : form.value.size.height,
+        // width: form.value.size === 'custom' ? form.value.width : form.value.size.width,
+        // height: form.value.size === 'custom' ? form.value.height : form.value.size.height,
+        width: 500,
+        height: 380,
       }).then((data) => {
         this.store.collection(`users/${this.userId}/drawings/${data.id}/paths`).add({
           name: 'Untitled',

@@ -6,6 +6,7 @@ import { ColorsModule } from '../../components/colors/colors.module';
 import { AnimationsModule } from '../../components/animations/animations.module';
 import { PathsModule } from '../../components/paths/paths.module';
 import { ExportsModule } from '../../components/exports/exports.module';
+import { PreviewModule } from '../../components/preview/preview.module';
 
 @NgModule({
   declarations: [
@@ -18,6 +19,8 @@ import { ExportsModule } from '../../components/exports/exports.module';
     ColorsModule,
     AnimationsModule,
     ExportsModule,
+
+    PreviewModule,
 
     SvgModule
   ],

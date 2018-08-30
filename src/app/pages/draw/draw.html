@@ -75,5 +75,8 @@
     <drwn-paths [animationId]="animationId" (changeLayout)="switchPath($event)"></drwn-paths>
     <drwn-animations (change)="switchAnimation($event)"></drwn-animations>
     <drwn-exports [drawingId]="drawingId"></drwn-exports>
+    <div class="preview-container">
+      <drwn-preview [drawingId]="drawingId" [drawing]="drawing" [controls]="false" size="small"></drwn-preview>
+    </div>
   </ng-container>
 </ng-container>

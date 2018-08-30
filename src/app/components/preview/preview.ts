@@ -1,8 +1,11 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input } from '@angular/core';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { first, map, switchMap, tap } from 'rxjs/operators';
 import { AngularFireAuth } from 'angularfire2/auth';
-import { BehaviorSubject, forkJoin, interval, of } from 'rxjs';
+import { BehaviorSubject, forkJoin, interval, of, Subject } from 'rxjs';
+import { RemoveConfirmationService } from '../../ui-components/remove-confirmation/remove-confirmation.service';
+import { MatDialog } from '@angular/material';
+import { CopyDialogComponent } from '../copy-dialog/copy-dialog';
 
 @Component({
   selector: 'drwn-preview',
@@ -22,14 +25,29 @@ export class PreviewComponent {
 
   @Input() drawing;
 
+  @Input() controls = true;
+  @Input() size = 'normal';
+
+  click$: BehaviorSubject<any> = new BehaviorSubject('started');
+
   paths$;
   animations$;
   all$;
   animationsRef;
+  userId;
 
-  constructor(private store: AngularFirestore, private auth: AngularFireAuth) {
+  @HostListener('click') click() {
+    this.click$.next('clicked');
+  }
+
+  constructor(private store: AngularFirestore,
+              private auth: AngularFireAuth,
+              private dialog: MatDialog,
+              private changeDetectorRef: ChangeDetectorRef,
+              private removeConfirmation: RemoveConfirmationService) {
     this.paths$ = auth.user
       .pipe(switchMap((user) => {
+        this.userId = user.uid;
         return this.drawingId$
           .pipe(map(drawingId => [user.uid, drawingId]));
       }))
@@ -44,12 +62,13 @@ export class PreviewComponent {
       }))
       .pipe(map((paths: any[]) => {
         return paths.map((path) => {
+          const pathText = path.coords.length > 1 ? path.coords.reduce((pathStr, dot, index) => {
+            pathStr += (!index ? `M${dot.x} ${dot.y}` : ` L${dot.x} ${dot.y}`);
+            return pathStr;
+          }, '') : '';
           return {
             ...path,
-            _path: `${path.coords.reduce((pathStr, dot, index) => {
-              pathStr += (!index ? `M${dot.x} ${dot.y} ` : `L${dot.x} ${dot.y} `);
-              return pathStr;
-            }, '')}${path.z ? 'Z' : ''}`
+            _path: `${pathText}${pathText && path.z ? ' Z' : ''}`
           };
         });
       }));
@@ -58,6 +77,10 @@ export class PreviewComponent {
       .pipe(switchMap((user) => {
         return this.drawingId$
           .pipe(map(drawingId => [user.uid, drawingId]));
+      }))
+      .pipe(switchMap(([userId, drawingId]: [string, string]) => {
+        return this.click$
+          .pipe(map(() => [userId, drawingId]));
       }))
       .pipe(switchMap(([userId, drawingId]: [string, string]) => {
         this.animationsRef = `users/${userId}/drawings/${drawingId}/animations`;
@@ -98,12 +121,13 @@ export class PreviewComponent {
               const animationPathsObject = {};
 
               animationPaths = animationPaths.map((path) => {
+                const pathText = path.coords.length > 1 ? path.coords.reduce((pathStr, dot, index) => {
+                  pathStr += (!index ? `M${dot.x} ${dot.y}` : ` L${dot.x} ${dot.y}`);
+                  return pathStr;
+                }, '') : '';
                 return {
                   ...path,
-                  _path: `${path.coords.reduce((pathStr, dot, index) => {
-                    pathStr += (!index ? `M${dot.x} ${dot.y} ` : `L${dot.x} ${dot.y} `);
-                    return pathStr;
-                  }, '')}${path.z ? 'Z' : ''}`
+                  _path: `${pathText}${pathText && path.z ? ' Z' : ''}`
                 };
               });
 
@@ -137,5 +161,57 @@ export class PreviewComponent {
             return sprites[i % sprites.length];
           }));
       }));
+  }
+
+  copy(event, drawing) {
+    this.dialog.open(CopyDialogComponent, {
+      data: {
+        drawing
+      }
+    });
+
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  remove(event, drawing) {
+    const drawingRef = `users/${this.userId}/drawings/${drawing.id}`;
+
+    this.removeConfirmation.open(event.target, 'You are going to remove it forever. Are you sure?')
+      .after().subscribe((confirmation) => {
+      if (confirmation) {
+        this.store.collection(`${drawingRef}/paths`)
+          .snapshotChanges()
+          .pipe(first())
+          .subscribe((list) => {
+            list.forEach((item) => {
+              this.store.doc(`${drawingRef}/paths/${item.payload.doc.id}`).delete().then();
+            });
+          });
+
+        this.store.collection(`${drawingRef}/animations`)
+          .snapshotChanges()
+          .pipe(first())
+          .subscribe((list) => {
+            list.forEach((item) => {
+              this.store.collection(`${drawingRef}/animations/${item.payload.doc.id}/paths`)
+                .snapshotChanges()
+                .pipe(first())
+                .subscribe((paths) => {
+                  list.forEach((path) => {
+                    this.store.doc(`${drawingRef}/animations/${item.payload.doc.id}/paths/${path.payload.doc.id}`).delete().then();
+                  });
+                });
+              this.store.doc(`${drawingRef}/animations/${item.payload.doc.id}`).delete().then();
+            });
+          });
+        this.store.doc(drawingRef).delete().then(() => {
+          this.changeDetectorRef.markForCheck();
+        });
+      }
+    });
+
+    event.preventDefault();
+    event.stopPropagation();
   }
 }
