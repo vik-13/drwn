@@ -73,7 +73,7 @@ export class DrawComponent {
       }))
       .pipe(switchMap((ids: {drawingId: string; userId: string}) => {
         this.pathsRef = `users/${ids.userId}/drawings/${ids.drawingId}/paths`;
-        return store.collection(this.pathsRef)
+        return store.collection(this.pathsRef, ref => ref.orderBy('created'))
           .snapshotChanges()
           .pipe(map((paths: any[]) => {
             return paths.map((item) => {
@@ -127,7 +127,7 @@ export class DrawComponent {
         return animations.map((animation) => {
           return {
             ...animation,
-            paths$: store.collection(`${this.animationsRef}/${animation.id}/paths`)
+            paths$: store.collection(`${this.animationsRef}/${animation.id}/paths`, ref => ref.orderBy('created'))
               .snapshotChanges()
               .pipe(map((paths: any[]) => {
                 return paths.map((item) => {

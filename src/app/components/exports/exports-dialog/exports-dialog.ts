@@ -37,7 +37,7 @@ export class ExportsDialogComponent {
     this.paths$ = auth.user
       .pipe(switchMap((user) => {
         this.pathsRef = `users/${user.uid}/drawings/${DialogData.drawingId}/paths`;
-        return store.collection(this.pathsRef)
+        return store.collection(this.pathsRef, ref => ref.orderBy('created'))
           .snapshotChanges()
           .pipe(map((paths: any[]) => {
             return paths.map((item) => {
@@ -65,7 +65,7 @@ export class ExportsDialogComponent {
         const paths = [];
         animations.forEach((animation) => {
           paths.push(
-            store.collection(`${this.animationsRef}/${animation.id}/paths`)
+            store.collection(`${this.animationsRef}/${animation.id}/paths`, ref => ref.orderBy('created'))
               .snapshotChanges()
               .pipe(map((animationPaths: any[]) => {
                 return animationPaths.map((item) => {

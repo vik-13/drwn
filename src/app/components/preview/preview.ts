@@ -52,7 +52,7 @@ export class PreviewComponent {
           .pipe(map(drawingId => [user.uid, drawingId]));
       }))
       .pipe(switchMap(([userId, drawingId]: [string, string]) => {
-        return store.collection(`users/${userId}/drawings/${drawingId}/paths`)
+        return store.collection(`users/${userId}/drawings/${drawingId}/paths`, ref => ref.orderBy('created'))
           .snapshotChanges()
           .pipe(map((paths) => {
             return paths.map((item) => {
@@ -97,7 +97,7 @@ export class PreviewComponent {
         const paths = [];
         filtered.forEach((animation) => {
           paths.push(
-            store.collection(`${this.animationsRef}/${animation.id}/paths`)
+            store.collection(`${this.animationsRef}/${animation.id}/paths`, ref => ref.orderBy('created'))
               .snapshotChanges()
               .pipe(map((animationPaths: any[]) => {
                 return animationPaths.map((item) => {
