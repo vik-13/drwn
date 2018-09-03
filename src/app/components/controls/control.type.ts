@@ -3,7 +3,7 @@ export enum ControlType {
   SPLIT = 'Split',
   MOVE = 'Move',
   ROTATE = 'Rotate',
-  SELECT = 'Select',
+  SCALE = 'Scale',
   REMOVE = 'Remove'
 }
 
@@ -12,12 +12,12 @@ export const normalMode = [
   ControlType.SPLIT,
   ControlType.MOVE,
   ControlType.ROTATE,
-  ControlType.SELECT,
+  ControlType.SCALE,
   ControlType.REMOVE
 ];
 
 export const animationMode = [
   ControlType.MOVE,
-  ControlType.SELECT,
+  ControlType.SCALE,
   ControlType.ROTATE
 ];

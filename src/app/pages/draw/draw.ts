@@ -9,7 +9,8 @@ enum ActionType {
   MOVE_POINT,
   MOVE_LINE,
   MOVE_ALL,
-  ROTATE_ALL
+  ROTATE_ALL,
+  SCALE_ALL
 }
 
 interface Action {
@@ -206,7 +207,7 @@ export class DrawComponent {
       case ControlType.REMOVE:
         this.removePoint(coords, index).then();
         return;
-      case ControlType.SELECT:
+      case ControlType.SCALE:
         return;
       default:
         return;
@@ -234,7 +235,12 @@ export class DrawComponent {
       case ControlType.ADD:
         this.addPoint(this.mouse.x, this.mouse.y).then();
         return;
-      case ControlType.SELECT:
+      case ControlType.SCALE:
+        this.action.type = ActionType.SCALE_ALL;
+        this.action.start = {x: this.mouse.x, y: this.mouse.y};
+        this.action.data = this.animationId ?
+          this.animationsPaths[this.animationId][this.pathId].coords :
+          this.originalPath[this.pathId].coords;
         return;
       case ControlType.MOVE:
         this.action.type = ActionType.MOVE_ALL;
@@ -275,7 +281,12 @@ export class DrawComponent {
         return;
       case ControlType.ROTATE:
         if (this.action.type === ActionType.ROTATE_ALL) {
-          this.rotatePoints(this.action.data, this.mouse.x - this.action.start.x, this.mouse.y - this.action.start.y);
+          this.rotatePoints(this.action.data, this.mouse.x - this.action.start.x, this.mouse.y - this.action.start.y).then();
+        }
+        return;
+      case ControlType.SCALE:
+        if (this.action.type === ActionType.SCALE_ALL) {
+          this.scalePoints(this.action.data, this.mouse.x - this.action.start.x, this.mouse.y - this.action.start.y).then();
         }
         return;
       default:
@@ -352,6 +363,44 @@ export class DrawComponent {
       return {
         x: center.x + (distance * Math.sin(angle + shiftAngle)),
         y: center.y + (distance * Math.cos(angle + shiftAngle))
+      };
+    });
+
+    if (this.animationId) {
+      return this.store.doc(`${this.animationsRef}/${this.animationId}/paths/${this.pathId}`).update({
+        coords: coords
+      });
+    } else {
+      return this.store.doc(`${this.pathsRef}/${this.pathId}`).update({
+        coords: coords
+      });
+    }
+  }
+
+  scalePoints(coords: any[], shiftX, shiftY) {
+    const center = {
+      x: coords.reduce((accu, value) => {
+        return accu + value.x;
+      }, 0) / coords.length,
+      y: coords.reduce((accu, value) => {
+        return accu + value.y;
+      }, 0) / coords.length,
+    };
+
+    coords = coords.map((coord) => {
+      const angle = Math.atan2(coord.x - center.x, coord.y - center.y);
+      const distance = Math.hypot(coord.x - center.x, coord.y - center.y);
+      let coef = 1;
+      if (shiftX < 0) {
+        coef =  1 - Math.abs(shiftX) / 100;
+        coef = coef < .2 ? .2 : coef;
+      } else if (shiftX > 0) {
+        coef = 1 + Math.abs(shiftX) / 100;
+        coef = coef > 2 ? 2 : coef;
+      }
+      return {
+        x: coord.x * coef - (center.x * coef - center.x),
+        y: coord.y * coef - (center.y * coef - center.y)
       };
     });
 
