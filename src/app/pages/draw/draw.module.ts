@@ -6,6 +6,7 @@ import { AnimationsModule } from '../../components/animations/animations.module'
 import { PathsModule } from '../../components/paths/paths.module';
 import { ExportsModule } from '../../components/exports/exports.module';
 import { PreviewModule } from '../../components/preview/preview.module';
+import { ControlsModule } from '../../components/controls/controls.module';
 
 @NgModule({
   declarations: [
@@ -17,6 +18,7 @@ import { PreviewModule } from '../../components/preview/preview.module';
     PathsModule,
     AnimationsModule,
     ExportsModule,
+    ControlsModule,
 
     PreviewModule,
 

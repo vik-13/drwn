@@ -1,19 +1,20 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { AngularFireAuth } from 'angularfire2/auth';
-import { first, map, switchMap } from 'rxjs/operators';
+import { first, map, switchMap, tap } from 'rxjs/operators';
 import { ActivatedRoute } from '@angular/router';
+import { ControlType } from '../../components/controls/control.type';
 
 enum ActionType {
   MOVE_POINT,
   MOVE_LINE,
-  MOVE_ALL
+  MOVE_ALL,
+  ROTATE_ALL
 }
 
 interface Action {
   type: ActionType;
   start: {x: number, y: number};
-  last: {x: number, y: number};
   data?: any;
 }
 
@@ -32,7 +33,6 @@ export class DrawComponent {
   action: Action = {
     type: null,
     start: {x: 0, y: 0},
-    last: {x: 0, y: 0},
     data: null
   };
 
@@ -40,6 +40,10 @@ export class DrawComponent {
   drawingId: string = null;
   pathId: string = null;
   animationId: string = null;
+  controlType: ControlType = null;
+
+  originalPath: {};
+  animationsPaths: {};
 
   drawing$;
   paths$;
@@ -104,6 +108,12 @@ export class DrawComponent {
               };
             });
           }));
+      }))
+      .pipe(tap((data) => {
+        this.originalPath = {};
+        data.forEach((item) => {
+          this.originalPath[item.id] = item;
+        });
       }));
 
     this.animations$ = auth.user
@@ -124,6 +134,7 @@ export class DrawComponent {
           }));
       }))
       .pipe(map((animations: any[]) => {
+        this.animationsPaths = {};
         return animations.map((animation) => {
           return {
             ...animation,
@@ -158,6 +169,12 @@ export class DrawComponent {
                   };
                 });
               }))
+              .pipe(tap((data) => {
+                this.animationsPaths[animation.id] = {};
+                data.forEach((item) => {
+                  this.animationsPaths[animation.id][item.id] = item;
+                });
+              }))
           };
         });
       }));
@@ -173,52 +190,69 @@ export class DrawComponent {
     this.changeDetection.markForCheck();
   }
 
+  switchControl(controlType: ControlType) {
+    this.controlType = controlType;
+  }
+
   clickOnDot(event, coords, index, point) {
-    if (!event.button) {
-      this.action.type = ActionType.MOVE_POINT;
-      this.action.last = {x: this.mouse.x, y: this.mouse.y};
-      this.action.data = {...point, index, coords};
-    } else if (!this.animationId) {
-      this.removePoint(coords, index).then();
-    }
-
     event.preventDefault();
     event.stopPropagation();
+
+    switch (this.controlType) {
+      case ControlType.MOVE:
+        this.action.type = ActionType.MOVE_POINT;
+        this.action.data = {...point, index, coords};
+        return;
+      case ControlType.REMOVE:
+        this.removePoint(coords, index).then();
+        return;
+      case ControlType.SELECT:
+        return;
+      default:
+        return;
+    }
   }
 
-  clickOnLine(event, coords, index, line) {
-    if (!this.animationId && !event.button) {
-      this.addPointOnLine(coords, index, this.mouse.x, this.mouse.y).then();
-    }
-
+  clickOnLine(event, coords, index) {
     event.preventDefault();
     event.stopPropagation();
-  }
 
-  clickOnPath(event, path) {
-    if (event.button) {
-      this.action.type = ActionType.MOVE_ALL;
-      this.action.start = {x: this.mouse.x, y: this.mouse.y};
-      this.action.last = {x: this.mouse.x, y: this.mouse.y};
-      this.action.data = path.coords;
-
-      event.preventDefault();
-      event.stopPropagation();
+    switch (this.controlType) {
+      case ControlType.SPLIT:
+        this.addPointOnLine(coords, index, this.mouse.x, this.mouse.y).then();
+        return;
+      default:
+        return;
     }
   }
 
   mouseDown(event) {
     this.mouse.x = event.offsetX;
     this.mouse.y = event.offsetY;
-    if (this.pathId) {
-      if (!this.animationId && !event.button) {
-        this.addPoint(
-          this.mouse.x,
-          this.mouse.y
-        ).then();
-      }
+
+    switch (this.controlType) {
+      case ControlType.ADD:
+        this.addPoint(this.mouse.x, this.mouse.y).then();
+        return;
+      case ControlType.SELECT:
+        return;
+      case ControlType.MOVE:
+        this.action.type = ActionType.MOVE_ALL;
+        this.action.start = {x: this.mouse.x, y: this.mouse.y};
+        this.action.data = this.animationId ?
+          this.animationsPaths[this.animationId][this.pathId].coords :
+          this.originalPath[this.pathId].coords;
+        return;
+      case ControlType.ROTATE:
+        this.action.type = ActionType.ROTATE_ALL;
+        this.action.start = {x: this.mouse.x, y: this.mouse.y};
+        this.action.data = this.animationId ?
+          this.animationsPaths[this.animationId][this.pathId].coords :
+          this.originalPath[this.pathId].coords;
+        return;
+      default:
+        return;
     }
-    this.action.last = {x: this.mouse.x, y: this.mouse.y};
   }
 
   mouseUp(event) {
@@ -231,12 +265,22 @@ export class DrawComponent {
     this.mouse.x = event.offsetX;
     this.mouse.y = event.offsetY;
 
-    if (this.action.type === ActionType.MOVE_POINT) {
-      this.updatePoint(this.action.data.coords, this.action.data.index, this.mouse.x, this.mouse.y).then();
-    } else if (this.action.type === ActionType.MOVE_ALL) {
-      this.updatePoints(this.action.data, this.mouse.x - this.action.start.x, this.mouse.y - this.action.start.y).then();
+    switch (this.controlType) {
+      case ControlType.MOVE:
+        if (this.action.type === ActionType.MOVE_POINT) {
+          this.updatePoint(this.action.data.coords, this.action.data.index, this.mouse.x, this.mouse.y).then();
+        } else if (this.action.type === ActionType.MOVE_ALL) {
+          this.updatePoints(this.action.data, this.mouse.x - this.action.start.x, this.mouse.y - this.action.start.y).then();
+        }
+        return;
+      case ControlType.ROTATE:
+        if (this.action.type === ActionType.ROTATE_ALL) {
+          this.rotatePoints(this.action.data, this.mouse.x - this.action.start.x, this.mouse.y - this.action.start.y);
+        }
+        return;
+      default:
+        return;
     }
-    this.action.last = {x: this.mouse.x, y: this.mouse.y};
   }
 
   addPointOnLine(coords: any[], index, x, y) {
@@ -280,6 +324,37 @@ export class DrawComponent {
         y: coord.y + shiftY
       };
     });
+    if (this.animationId) {
+      return this.store.doc(`${this.animationsRef}/${this.animationId}/paths/${this.pathId}`).update({
+        coords: coords
+      });
+    } else {
+      return this.store.doc(`${this.pathsRef}/${this.pathId}`).update({
+        coords: coords
+      });
+    }
+  }
+
+  rotatePoints(coords: any[], shiftX, shiftY) {
+    const center = {
+      x: coords.reduce((accu, value) => {
+          return accu + value.x;
+        }, 0) / coords.length,
+      y: coords.reduce((accu, value) => {
+        return accu + value.y;
+      }, 0) / coords.length,
+    };
+
+    coords = coords.map((coord) => {
+      const angle = Math.atan2(coord.x - center.x, coord.y - center.y);
+      const shiftAngle = shiftX * (Math.PI / 500);
+      const distance = Math.hypot(coord.x - center.x, coord.y - center.y);
+      return {
+        x: center.x + (distance * Math.sin(angle + shiftAngle)),
+        y: center.y + (distance * Math.cos(angle + shiftAngle))
+      };
+    });
+
     if (this.animationId) {
       return this.store.doc(`${this.animationsRef}/${this.animationId}/paths/${this.pathId}`).update({
         coords: coords

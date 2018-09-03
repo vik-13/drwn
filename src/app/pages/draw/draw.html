@@ -10,7 +10,7 @@
            (mouseup)="mouseUp($event)">
         <g class="original-container" [class.active]="!animationId">
           <ng-container *ngFor="let path of paths">
-            <g class="original-path" [class.active]="!animationId && pathId === path.id" (mousedown)="clickOnPath($event, path)">
+            <g class="original-path" [class.active]="!animationId && pathId === path.id">
               <ng-container *ngIf="path.z && path.fill && path._path">
                 <path [attr.d]="path._path" [attr.fill]="path.fill"></path>
               </ng-container>
@@ -21,7 +21,7 @@
                       [attr.y2]="line.y2"
                       [attr.stroke]="path.stroke"
                       stroke-width="1"
-                      (mousedown)="clickOnLine($event, path.coords, index, line)"></line>
+                      (mousedown)="clickOnLine($event, path.coords, index)"></line>
               </ng-container>
               <ng-container *ngFor="let point of path.coords; let index = index">
                 <ng-container *ngIf="!animationId && pathId === path.id">
@@ -42,7 +42,7 @@
              [class.active]="animation.id === animationId">
             <ng-container *ngIf="animation.paths$ | async as paths">
               <ng-container *ngFor="let path of paths">
-                <g class="path" [class.active]="animation.id === animationId && pathId === path.id"  (mousedown)="clickOnPath($event, path)">
+                <g class="path" [class.active]="animation.id === animationId && pathId === path.id">
                   <ng-container *ngIf="path.z && path.fill && path._path">
                     <path [attr.d]="path._path" [attr.fill]="path.fill"></path>
                   </ng-container>
@@ -53,7 +53,7 @@
                           [attr.y2]="line.y2"
                           [attr.stroke]="path.stroke"
                           stroke-width="1"
-                          (mousedown)="clickOnLine($event, path.coords, index, line)"></line>
+                          (mousedown)="clickOnLine($event, path.coords, index)"></line>
                   </ng-container>
                   <ng-container *ngFor="let point of path.coords; let index = index">
                     <ng-container *ngIf="animation.id === animationId && pathId === path.id">
@@ -75,6 +75,7 @@
     <drwn-paths [animationId]="animationId" (changeLayout)="switchPath($event)"></drwn-paths>
     <drwn-animations (change)="switchAnimation($event)"></drwn-animations>
     <drwn-exports [drawingId]="drawingId"></drwn-exports>
+    <drwn-controls (changeControl)="switchControl($event)" [animationMode]="!!animationId"></drwn-controls>
     <div class="preview-container">
       <drwn-preview [drawingId]="drawingId" [drawing]="drawing" [controls]="false" size="small"></drwn-preview>
     </div>

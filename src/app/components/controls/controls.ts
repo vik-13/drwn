@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { ControlType } from './control.type';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { animationMode, ControlType, normalMode } from './control.type';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 
 @Component({
   selector: 'drwn-controls',
@@ -9,16 +10,25 @@ import { ControlType } from './control.type';
 })
 export class ControlsComponent implements OnInit {
 
+  @Input()
+  get animationMode() {return this._animationMode; }
+  set animationMode(value: any) {
+    this._animationMode = coerceBooleanProperty(value);
+    if (this._animationMode) {
+      this.types = [...animationMode];
+      this.selected = animationMode[0];
+      this.changeControl.emit(this.selected);
+    } else {
+      this.types = [...normalMode];
+    }
+  }
+  private _animationMode = false;
+
   @Output() changeControl: EventEmitter<ControlType> = new EventEmitter<ControlType>();
 
   expanded = true;
   selected: ControlType = ControlType.ADD;
-  types: ControlType[] = [
-    ControlType.ADD,
-    ControlType.SPLIT,
-    ControlType.MOVE,
-    ControlType.REMOVE
-  ];
+  types: ControlType[] = [...normalMode];
 
   constructor() {}
 

@@ -43,7 +43,11 @@ $opacity: .3;
       }
 
       circle {
-        r: 5;
+        r: 3;
+
+        &:hover {
+          r: 5;
+        }
       }
     }
   }
