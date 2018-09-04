@@ -1,16 +1,15 @@
 :host {
+  display: flex;
   position: absolute;
   top: 5px;
   right: 5px;
   width: 260px;
 
-  max-height: calc(100vh - 141px);
+  max-height: calc(100vh - 210px);
 }
 
 .list {
   flex: 1;
-  overflow: auto;
-  scroll-behavior: smooth;
 
   .item {
     display: flex;

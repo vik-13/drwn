@@ -42,6 +42,12 @@ export class PathSettingsDialogComponent {
     }
   }
 
+  changeCreated(event) {
+    if (event.target.value) {
+      this.store.doc(this.viewData.pathRef).update({created: +event.target.value}).then();
+    }
+  }
+
   changeClose(event) {
     this.store.doc(this.viewData.pathRef).update({z: event.checked}).then();
   }

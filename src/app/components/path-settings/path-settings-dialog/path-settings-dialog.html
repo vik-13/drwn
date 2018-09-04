@@ -1,12 +1,23 @@
 <div class="settings-container" *ngIf="path$ | async as path">
-  <mat-form-field>
-    <input matInput
-           name="name"
-           #field
-           [value]="path.name"
-           (change)="changeName($event)"
-           placeholder="Path name" />
-  </mat-form-field>
+  <div>
+    <mat-form-field>
+      <input matInput
+             name="name"
+             #field
+             [value]="path.name"
+             (change)="changeName($event)"
+             placeholder="Path name" />
+    </mat-form-field>
+  </div>
+  <div>
+    <mat-form-field>
+      <input matInput
+             name="created"
+             [value]="path.created"
+             (change)="changeCreated($event)"
+             placeholder="Created" />
+    </mat-form-field>
+  </div>
   <div class="color-selector-container">
     <div class="title">Stroke style:</div>
     <div class="color"
