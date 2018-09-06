@@ -23,15 +23,14 @@ export class PathSettingsComponent {
   }
   private _pathRef: string;
 
-  last;
+  @Input() elementRef;
 
-  constructor(private viewService: ViewService, private elementRef: ElementRef) {
-    this.last = elementRef;
-  }
+  constructor(private viewService: ViewService) {}
 
   open() {
     this.viewService.open(PathSettingsDialogComponent, this.elementRef, {
-      pathRef: `${this.pathRef}/${this.pathId}`
+      pathRef: `${this.pathRef}/${this.pathId}`,
+      elementRef: this.elementRef
     });
   }
 }

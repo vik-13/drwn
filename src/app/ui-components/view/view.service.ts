@@ -14,11 +14,10 @@ export class ViewService {
     const overlayRef = this.overlay.create({
       scrollStrategy: this.overlay.scrollStrategies.reposition(),
       positionStrategy: this.overlay.position().flexibleConnectedTo(elementRef)
-        .withLockedPosition(true)
         .withPositions([{
           originX: 'start',
-          originY: 'bottom',
-          overlayX: 'end',
+          originY: 'top',
+          overlayX: 'start',
           overlayY: 'top'
         }]),
       hasBackdrop: true,

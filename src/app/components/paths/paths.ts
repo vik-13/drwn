@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostBinding, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, HostBinding, Input, Output } from '@angular/core';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { map, switchMap, tap } from 'rxjs/operators';
 import { AngularFireAuth } from 'angularfire2/auth';
@@ -38,6 +38,7 @@ export class PathsComponent {
               private changeDetection: ChangeDetectorRef,
               private viewService: ViewService,
               private auth: AngularFireAuth,
+              public elementRef: ElementRef,
               route: ActivatedRoute) {
     this.paths$ = auth.user
       .pipe(switchMap((user) => {

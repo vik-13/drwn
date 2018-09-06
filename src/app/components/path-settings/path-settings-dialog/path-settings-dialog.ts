@@ -53,7 +53,7 @@ export class PathSettingsDialogComponent {
   }
 
   changeStrokeColor(elementRef, current = null) {
-    this.colorPicker.open(elementRef, current).after().subscribe((color) => {
+    this.colorPicker.open(this.viewData.elementRef, current).after().subscribe((color) => {
       if (color) {
         this.store.doc(this.viewData.pathRef).update({stroke: color}).then();
       }
@@ -61,7 +61,7 @@ export class PathSettingsDialogComponent {
   }
 
   changeFillColor(elementRef, current = null) {
-    this.colorPicker.open(elementRef, current).after().subscribe((color) => {
+    this.colorPicker.open(this.viewData.elementRef, current).after().subscribe((color) => {
       if (color) {
         this.store.doc(this.viewData.pathRef).update({fill: color}).then();
       }

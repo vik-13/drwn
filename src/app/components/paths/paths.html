@@ -13,7 +13,7 @@
             <mat-icon *ngIf="!(animationId && animationPaths[path.id])" (click)="attachPath($event, path)">add_circle</mat-icon>
             <mat-icon *ngIf="animationId && animationPaths[path.id]" (click)="detachPath($event, path)">remove_circle</mat-icon>
           </span>
-          <path-settings [pathRef]="pathRef" [pathId]="path.id"></path-settings>
+          <path-settings [elementRef]="elementRef" [pathRef]="pathRef" [pathId]="path.id"></path-settings>
         </div>
       </div>
       <div class="actions" *ngIf="!animationId">
