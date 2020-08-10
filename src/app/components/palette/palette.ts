@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { MatDialog } from '@angular/material';
 import { PaletteDialogComponent } from './palette-dialog/palette-dialog';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'drwn-palette',

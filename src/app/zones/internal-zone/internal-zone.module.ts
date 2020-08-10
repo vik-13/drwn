@@ -3,10 +3,12 @@ import { InternalZoneComponent } from './internal-zone';
 import { RouterModule } from '@angular/router';
 import { InternalZoneActivation } from './internal-zone.activation';
 import { CommonModule } from '@angular/common';
-import { MatButtonModule, MatIconModule, MatToolbarModule } from '@angular/material';
 import { UserModule } from '../../components/user/user.module';
 import { CreateModule } from '../../components/create/create.module';
 import { PaletteModule } from '../../components/palette/palette.module';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
   declarations: [

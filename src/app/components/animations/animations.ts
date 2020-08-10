@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { filter, first, map, switchMap } from 'rxjs/operators';
-import { AngularFirestore } from 'angularfire2/firestore';
-import { AngularFireAuth } from 'angularfire2/auth';
 import { ActivatedRoute } from '@angular/router';
 import { RemoveConfirmationService } from '../../ui-components/remove-confirmation/remove-confirmation.service';
+import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFireAuth } from '@angular/fire/auth';
+import { User } from 'firebase';
 
 @Component({
   selector: 'drwn-animations',
@@ -26,9 +27,9 @@ export class AnimationsComponent implements OnInit {
               private changeDetection: ChangeDetectorRef,
               private removeConfirmation: RemoveConfirmationService) {
     this.animations$ = auth.user
-      .pipe(switchMap((user) => {
+      .pipe(switchMap((user: User|null) => {
         return route.params
-          .pipe(map((params) => {
+          .pipe(map((params: any) => {
             return {drawingId: params.id, userId: user.uid};
           }));
       }))
@@ -36,7 +37,7 @@ export class AnimationsComponent implements OnInit {
         this.animationsPath = `users/${ids.userId}/drawings/${ids.drawingId}/animations`;
         return store.collection(this.animationsPath, ref => ref.orderBy('created', 'asc'))
           .snapshotChanges()
-          .pipe(map((actions) => {
+          .pipe(map((actions: any[]) => {
             return actions.map((item) => {
               return {id: item.payload.doc.id, ...item.payload.doc.data()};
             });

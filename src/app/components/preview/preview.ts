@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input } from '@angular/core';
-import { AngularFirestore } from 'angularfire2/firestore';
 import { first, map, switchMap, tap } from 'rxjs/operators';
-import { AngularFireAuth } from 'angularfire2/auth';
-import { BehaviorSubject, forkJoin, interval, of, Subject } from 'rxjs';
+import { BehaviorSubject, forkJoin, interval, of } from 'rxjs';
 import { RemoveConfirmationService } from '../../ui-components/remove-confirmation/remove-confirmation.service';
-import { MatDialog } from '@angular/material';
 import { CopyDialogComponent } from '../copy-dialog/copy-dialog';
+import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFireAuth } from '@angular/fire/auth';
+import { MatDialog } from '@angular/material/dialog';
+import { User } from 'firebase';
 
 @Component({
   selector: 'drwn-preview',
@@ -46,7 +47,7 @@ export class PreviewComponent {
               private changeDetectorRef: ChangeDetectorRef,
               private removeConfirmation: RemoveConfirmationService) {
     this.paths$ = auth.user
-      .pipe(switchMap((user) => {
+      .pipe(switchMap((user: User|null) => {
         this.userId = user.uid;
         return this.drawingId$
           .pipe(map(drawingId => [user.uid, drawingId]));
@@ -54,7 +55,7 @@ export class PreviewComponent {
       .pipe(switchMap(([userId, drawingId]: [string, string]) => {
         return store.collection(`users/${userId}/drawings/${drawingId}/paths`, ref => ref.orderBy('created'))
           .snapshotChanges()
-          .pipe(map((paths) => {
+          .pipe(map((paths: any[]) => {
             return paths.map((item) => {
               return {id: item.payload.doc.id, ...item.payload.doc.data()};
             });
@@ -74,7 +75,7 @@ export class PreviewComponent {
       }));
 
     this.animations$ = auth.user
-      .pipe(switchMap((user) => {
+      .pipe(switchMap((user: User|null) => {
         return this.drawingId$
           .pipe(map(drawingId => [user.uid, drawingId]));
       }))
@@ -86,7 +87,7 @@ export class PreviewComponent {
         this.animationsRef = `users/${userId}/drawings/${drawingId}/animations`;
         return store.collection(this.animationsRef, ref => ref.orderBy('created', 'asc'))
           .snapshotChanges()
-          .pipe(map((paths) => {
+          .pipe(map((paths: any[]) => {
             return paths.map((item) => {
               return {id: item.payload.doc.id, ...item.payload.doc.data()};
             });

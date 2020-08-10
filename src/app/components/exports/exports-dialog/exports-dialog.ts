@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject } from '@angular/core';
 import { first, map, switchMap, tap } from 'rxjs/operators';
-import { AngularFirestore } from 'angularfire2/firestore';
-import { AngularFireAuth } from 'angularfire2/auth';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 import { BehaviorSubject, forkJoin, of } from 'rxjs';
+import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFireAuth } from '@angular/fire/auth';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { User } from 'firebase';
 
 @Component({
   selector: 'drwn-exports-dialog',
@@ -35,7 +36,7 @@ export class ExportsDialogComponent {
               private dialogRef: MatDialogRef<any>,
               @Inject(MAT_DIALOG_DATA) private DialogData) {
     this.paths$ = auth.user
-      .pipe(switchMap((user) => {
+      .pipe(switchMap((user: User|null) => {
         this.pathsRef = `users/${user.uid}/drawings/${DialogData.drawingId}/paths`;
         return store.collection(this.pathsRef, ref => ref.orderBy('created'))
           .snapshotChanges()
@@ -51,7 +52,7 @@ export class ExportsDialogComponent {
       .pipe(first());
 
     this.animations$ = auth.user
-      .pipe(switchMap((user) => {
+      .pipe(switchMap((user: User|null) => {
         this.animationsRef = `users/${user.uid}/drawings/${DialogData.drawingId}/animations`;
         return store.collection(this.animationsRef, ref => ref.orderBy('created', 'asc'))
           .snapshotChanges()

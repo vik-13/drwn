@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { AngularFirestore } from 'angularfire2/firestore';
-import { AngularFireAuth } from 'angularfire2/auth';
-import { MatDialogRef } from '@angular/material';
 import { map, switchMap } from 'rxjs/operators';
 import { RemoveConfirmationService } from '../../../ui-components/remove-confirmation/remove-confirmation.service';
+import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFireAuth } from '@angular/fire/auth';
+import { MatDialogRef } from '@angular/material/dialog';
+import { User } from 'firebase';
 
 @Component({
   selector: 'palette-dialog',
@@ -20,7 +21,7 @@ export class PaletteDialogComponent {
               private removeConfirmation: RemoveConfirmationService,
               private dialogRef: MatDialogRef<any>) {
     this.colors$ = auth.user
-      .pipe(switchMap((user) => {
+      .pipe(switchMap((user: User|null) => {
         this.userId = user.uid;
         return store.collection(`users/${user.uid}/colors`, ref => ref.orderBy('created'))
           .snapshotChanges()

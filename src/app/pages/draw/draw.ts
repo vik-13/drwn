@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
-import { AngularFirestore } from 'angularfire2/firestore';
-import { AngularFireAuth } from 'angularfire2/auth';
 import { first, map, switchMap, tap } from 'rxjs/operators';
 import { ActivatedRoute } from '@angular/router';
 import { ControlType } from '../../components/controls/control.type';
+import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFireAuth } from '@angular/fire/auth';
+import { User } from 'firebase';
 
 enum ActionType {
   MOVE_POINT,
@@ -58,9 +59,9 @@ export class DrawComponent {
               private auth: AngularFireAuth,
               route: ActivatedRoute) {
     this.drawing$ = auth.user
-      .pipe(switchMap((user) => {
+      .pipe(switchMap((user: User|null) => {
         return route.params
-          .pipe(map((params) => {
+          .pipe(map((params: any) => {
             this.drawingId = params.id;
             return {drawingId: params.id, userId: user.uid};
           }));
@@ -70,9 +71,9 @@ export class DrawComponent {
       }));
 
     this.paths$ = auth.user
-      .pipe(switchMap((user) => {
+      .pipe(switchMap((user: User|null) => {
         return route.params
-          .pipe(map((params) => {
+          .pipe(map((params: any) => {
             return {drawingId: params.id, userId: user.uid};
           }));
       }))
@@ -118,9 +119,9 @@ export class DrawComponent {
       }));
 
     this.animations$ = auth.user
-      .pipe(switchMap((user) => {
+      .pipe(switchMap((user: User|null) => {
         return route.params
-          .pipe(map((params) => {
+          .pipe(map((params: any) => {
             return {drawingId: params.id, userId: user.uid};
           }));
       }))

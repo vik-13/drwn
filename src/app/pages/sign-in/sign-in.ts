@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { AngularFireAuth } from 'angularfire2/auth';
 import { Router } from '@angular/router';
+import { AngularFireAuth } from '@angular/fire/auth';
 
 @Component({
   selector: 'drwn-sign-in',
@@ -13,7 +13,7 @@ export class SignInComponent {
 
   signIn(form) {
     if (form.valid) {
-      this.auth.auth.signInWithEmailAndPassword(form.value.email, form.value.password)
+      this.auth.signInWithEmailAndPassword(form.value.email, form.value.password)
         .then((data) => {
           this.router.navigate(['/dashboard']).then();
         }, (error) => {

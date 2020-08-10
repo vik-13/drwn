@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { ControlsComponent } from './controls';
 import { CommonModule } from '@angular/common';
-import { MatButtonToggleModule } from '@angular/material';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
 @NgModule({
   declarations: [

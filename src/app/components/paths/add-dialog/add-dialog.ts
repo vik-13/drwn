@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, Inject, ViewChild } from '@angular/core';
 import { ViewRef } from '../../../ui-components/view/view-ref';
 import { VIEW_DATA } from '../../../ui-components/view/view-data';
-import { AngularFirestore } from 'angularfire2/firestore';
+import { AngularFirestore } from '@angular/fire/firestore';
 
 @Component({
   selector: 'add-dialog',

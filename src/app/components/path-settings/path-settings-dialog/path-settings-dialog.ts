@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, ElementRef, Inject, ViewChild } from '@angular/core';
 import { ViewRef } from '../../../ui-components/view/view-ref';
 import { VIEW_DATA } from '../../../ui-components/view/view-data';
-import { AngularFirestore } from 'angularfire2/firestore';
 import { map, tap } from 'rxjs/operators';
 import { RemoveConfirmationService } from '../../../ui-components/remove-confirmation/remove-confirmation.service';
 import { ColorPickerService } from '../../color-picker/color-picker.service';
+import { AngularFirestore } from '@angular/fire/firestore';
 
 @Component({
   selector: 'path-settings-dialog',
@@ -31,7 +31,7 @@ export class PathSettingsDialogComponent {
               private removeConfirmation: RemoveConfirmationService,
               @Inject(VIEW_DATA) private viewData) {
     this.path$ = this.store.doc(viewData.pathRef).snapshotChanges()
-      .pipe(map((data) => {
+      .pipe(map((data: any) => {
         return {id: data.payload.id, ...data.payload.data()};
       }));
   }

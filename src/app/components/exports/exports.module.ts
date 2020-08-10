@@ -1,8 +1,11 @@
 import { NgModule } from '@angular/core';
 import { ExportsComponent } from './exports';
 import { CommonModule } from '@angular/common';
-import { MatButtonModule, MatDialogModule, MatFormFieldModule, MatInputModule } from '@angular/material';
 import { ExportsDialogComponent } from './exports-dialog/exports-dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 @NgModule({
   declarations: [

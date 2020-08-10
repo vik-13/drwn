@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { MatDialog } from '@angular/material';
 import { CreateDialogComponent } from './create-dialog/create-dialog';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'drwn-create',

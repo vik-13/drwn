@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, HostBinding, Input, Output } from '@angular/core';
-import { AngularFirestore } from 'angularfire2/firestore';
 import { map, switchMap, tap } from 'rxjs/operators';
-import { AngularFireAuth } from 'angularfire2/auth';
 import { ActivatedRoute } from '@angular/router';
 import { ViewService } from '../../ui-components/view/view.service';
 import { AddDialogComponent } from './add-dialog/add-dialog';
 import { BehaviorSubject } from 'rxjs';
+import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFireAuth } from '@angular/fire/auth';
+import { User } from 'firebase';
 
 @Component({
   selector: 'drwn-paths',
@@ -51,7 +52,7 @@ export class PathsComponent {
         this.pathRef = `users/${ids.userId}/drawings/${ids.drawingId}/paths`;
         return store.collection(this.pathRef, ref => ref.orderBy('created'))
           .snapshotChanges()
-          .pipe(map((animations) => {
+          .pipe(map((animations: any[]) => {
             return animations.map((item) => {
               return {id: item.payload.doc.id, ...item.payload.doc.data()};
             });
@@ -73,9 +74,9 @@ export class PathsComponent {
       }));
 
     this.animationPaths$ = auth.user
-      .pipe(switchMap((user) => {
+      .pipe(switchMap((user: User|null) => {
         return route.params
-          .pipe(map((params) => {
+          .pipe(map((params: any) => {
             return {drawingId: params.id, userId: user.uid};
           }));
       }))
@@ -89,13 +90,13 @@ export class PathsComponent {
         this.animationPathRef = `users/${ids.userId}/drawings/${ids.drawingId}/animations/${ids.animationId}/paths`;
         return store.collection(this.animationPathRef)
           .snapshotChanges()
-          .pipe(map((animations) => {
+          .pipe(map((animations: any[]) => {
             return animations.map((item) => {
               return {id: item.payload.doc.id, ...item.payload.doc.data()};
             });
           }));
       }))
-      .pipe(map((animations) => {
+      .pipe(map((animations: any[]) => {
         const animationsObject = {};
         animations.forEach((animation) => {
           animationsObject[animation.id] = animation;

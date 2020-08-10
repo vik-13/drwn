@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { AngularFirestore } from 'angularfire2/firestore';
-import { AngularFireAuth } from 'angularfire2/auth';
 import { map, switchMap } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFireAuth } from '@angular/fire/auth';
+import { User } from 'firebase';
 
 @Component({
   selector: 'drwn-dashboard',
@@ -17,11 +17,11 @@ export class DashboardComponent {
 
   constructor(private store: AngularFirestore, private auth: AngularFireAuth) {
     this.collection$ = auth.user
-      .pipe(switchMap((user) => {
+      .pipe(switchMap((user: User|null) => {
         this.path = `users/${user.uid}/drawings`;
         return store.collection(this.path, ref => ref.orderBy('created'))
           .snapshotChanges()
-          .pipe(map((actions) => {
+          .pipe(map((actions: any[]) => {
             return actions.map((item) => {
               return {
                 id: item.payload.doc.id,
